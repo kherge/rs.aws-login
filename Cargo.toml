@@ -13,6 +13,8 @@ keywords = ["aws", "login"]
 categories = ["command-line-utilities"]
 
 [dependencies]
+console = "^0.15"
+dialoguer = "^0.9"
 structopt = "^0.3"
 
 [profile.release]
