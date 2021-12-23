@@ -1,6 +1,7 @@
 //! Supporting functions, types, and traits for implementing and creating subcommands.
 
 mod ecr;
+mod eks;
 
 #[cfg(test)]
 use std::fmt;
@@ -84,6 +85,8 @@ pub type Result<T> = result::Result<T, Error>;
 pub enum Subcommand {
     /// Configures the Docker client to use ECR.
     Ecr(ecr::Subcommand),
+    /// Configures the Kubernetes client to use EKS.
+    Eks(eks::Subcommand),
 }
 
 impl Execute for Subcommand {
@@ -95,6 +98,7 @@ impl Execute for Subcommand {
     ) -> Result<()> {
         match self {
             Self::Ecr(cmd) => cmd.execute(context, error, output),
+            Self::Eks(cmd) => cmd.execute(context, error, output),
         }
     }
 }
