@@ -48,7 +48,7 @@ impl From<io::Error> for Error {
     }
 }
 
-/// ???
+/// A macro to return an error with a status, message, and/or formatted message.
 #[macro_export]
 macro_rules! error {
     ($status:expr) => {
