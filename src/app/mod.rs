@@ -12,11 +12,11 @@ use subcommand::Execute;
 #[derive(StructOpt)]
 pub struct Application {
     /// Use a specific AWS CLI or template profile to use.
-    #[structopt(long)]
+    #[structopt(long, global = true)]
     profile: Option<String>,
 
     /// Use a specific AWS region, overriding profile and environment settings.
-    #[structopt(long)]
+    #[structopt(long, global = true)]
     region: Option<String>,
 
     /// AWS account or managed service to log into
