@@ -4,6 +4,7 @@ use std::io;
 use structopt::StructOpt;
 
 mod app;
+mod util;
 
 /// Initializes the application and processes the command line arguments.
 fn main() {
