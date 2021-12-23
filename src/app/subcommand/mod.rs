@@ -1,8 +1,11 @@
 //! Supporting functions, types, and traits for implementing and creating subcommands.
 
+mod ecr;
+
 #[cfg(test)]
 use std::fmt;
 use std::{io, process, result};
+use structopt::StructOpt;
 
 /// A trait for objects which manage application settings.
 pub trait Context {
@@ -75,6 +78,13 @@ pub trait Execute {
 
 /// A specialized Result type for subcommand operations.
 pub type Result<T> = result::Result<T, Error>;
+
+/// The available subcommands.
+#[derive(StructOpt)]
+pub enum Subcommand {
+    /// Configures the Docker client to use ECR.
+    Ecr(ecr::Subcommand),
+}
 
 /// An application context used for testing.
 #[cfg(test)]

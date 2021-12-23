@@ -4,6 +4,7 @@ pub(crate) mod subcommand;
 
 use std::io;
 use structopt::StructOpt;
+use subcommand::Execute;
 
 /// A command line utility to simplify logging into AWS accounts and services.
 ///
@@ -17,6 +18,10 @@ pub struct Application {
     /// Use a specific AWS region, overriding profile and environment settings.
     #[structopt(long)]
     region: Option<String>,
+
+    /// AWS account or managed service to log into
+    #[structopt(subcommand)]
+    subcommand: subcommand::Subcommand,
 }
 
 impl Application {
@@ -26,10 +31,11 @@ impl Application {
         error: &mut impl io::Write,
         output: &mut impl io::Write,
     ) -> subcommand::Result<()> {
-        writeln!(error, "Using STDERR.")?;
-        writeln!(output, "Using STDOUT.")?;
+        use subcommand::Subcommand::*;
 
-        Ok(())
+        match &self.subcommand {
+            Ecr(cmd) => cmd.execute(self, error, output),
+        }
     }
 }
 
