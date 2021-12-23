@@ -86,6 +86,19 @@ pub enum Subcommand {
     Ecr(ecr::Subcommand),
 }
 
+impl Execute for Subcommand {
+    fn execute(
+        &self,
+        context: &impl Context,
+        error: &mut impl io::Write,
+        output: &mut impl io::Write,
+    ) -> Result<()> {
+        match self {
+            Self::Ecr(cmd) => cmd.execute(context, error, output),
+        }
+    }
+}
+
 /// An application context used for testing.
 #[cfg(test)]
 #[derive(Default)]

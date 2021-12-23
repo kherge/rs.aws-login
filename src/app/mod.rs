@@ -31,11 +31,7 @@ impl Application {
         error: &mut impl io::Write,
         output: &mut impl io::Write,
     ) -> subcommand::Result<()> {
-        use subcommand::Subcommand::*;
-
-        match &self.subcommand {
-            Ecr(cmd) => cmd.execute(self, error, output),
-        }
+        self.subcommand.execute(self, error, output)
     }
 }
 
