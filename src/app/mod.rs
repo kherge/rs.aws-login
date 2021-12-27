@@ -1,6 +1,6 @@
 //! Provides the command line interface and subcommands to execute.
 
-pub(crate) mod subcommand;
+pub mod subcommand;
 
 use std::io;
 use structopt::StructOpt;
