@@ -1,9 +1,11 @@
 //! Provides utilities that may be shared by multiple subcommands.
 
 mod command;
+mod config;
 mod interface;
 
 pub use command::*;
+pub use config::*;
 pub use interface::*;
 
 /// Prints a debugging message in debug builds.
