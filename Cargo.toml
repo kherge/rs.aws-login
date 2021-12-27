@@ -16,6 +16,7 @@ categories = ["command-line-utilities"]
 console = "^0.15"
 dialoguer = "^0.9"
 structopt = "^0.3"
+thiserror = "^1.0"
 
 [profile.release]
 lto = true
