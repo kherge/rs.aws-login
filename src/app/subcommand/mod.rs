@@ -54,7 +54,7 @@ impl From<io::Error> for Error {
 
 /// A macro to return an error with a status, message, and/or formatted message.
 #[macro_export]
-macro_rules! error {
+macro_rules! err {
     ($status:expr) => {
         return Err(crate::app::subcommand::Error::new($status, None))
     };
@@ -182,7 +182,7 @@ mod test {
             _: &mut impl io::Write,
             _: &mut impl io::Write,
         ) -> Result<()> {
-            error!(123, "Oops!");
+            err!(123, "Oops!");
         }
     }
 
@@ -206,7 +206,7 @@ mod test {
 
     #[test]
     fn error_macro_status_only() {
-        let test = || -> Result<()> { error!(1) };
+        let test = || -> Result<()> { err!(1) };
         let error = test().unwrap_err();
 
         assert_eq!(error.message, None);
@@ -215,7 +215,7 @@ mod test {
 
     #[test]
     fn error_macro_message() {
-        let test = || -> Result<()> { error!(2, "The message.") };
+        let test = || -> Result<()> { err!(2, "The message.") };
         let error = test().unwrap_err();
 
         assert_eq!(error.message, Some("The message.".into()));
@@ -224,7 +224,7 @@ mod test {
 
     #[test]
     fn error_macro_formatted_message() {
-        let test = || -> Result<()> { error!(3, "The {}.", "message") };
+        let test = || -> Result<()> { err!(3, "The {}.", "message") };
         let error = test().unwrap_err();
 
         assert_eq!(error.message, Some("The message.".into()));

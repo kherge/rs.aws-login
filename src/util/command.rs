@@ -1,7 +1,7 @@
 //! Manages the execution of third-party command line applications.
 
 use crate::app::subcommand;
-use crate::error;
+use crate::err;
 use std::{ffi, process};
 
 /// Wraps the process builder to make it easier to use.
@@ -36,12 +36,12 @@ impl Run {
         if process.status.success() {
             let output = match String::from_utf8(process.stdout) {
                 Ok(string) => string,
-                Err(_) => error!(1, "The output of, {}, is not valid UTF-8.", self.name),
+                Err(_) => err!(1, "The output of, {}, is not valid UTF-8.", self.name),
             };
 
             Ok(output)
         } else {
-            error!(
+            err!(
                 process.status.code().unwrap_or(1),
                 String::from_utf8(process.stderr)
                     .unwrap_or("The error output of, {}, is not valid UTF-8.".into())
@@ -56,7 +56,7 @@ impl Run {
         if process.success() {
             Ok(())
         } else {
-            error!(process.code().unwrap_or(1))
+            err!(process.code().unwrap_or(1))
         }
     }
 

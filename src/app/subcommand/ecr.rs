@@ -1,7 +1,7 @@
 //! The command for configuring Docker to use ECR.
 
 use crate::app::subcommand;
-use crate::{error, util};
+use crate::{err, util};
 use std::io;
 use structopt::StructOpt;
 
@@ -61,7 +61,7 @@ fn generate_registry_uri(context: &impl subcommand::Context) -> subcommand::Resu
                 .to_owned();
 
             if output.is_empty() {
-                error!(1, "The region could not be determined.");
+                err!(1, "The region could not be determined.");
             }
 
             output
