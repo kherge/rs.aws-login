@@ -1,5 +1,6 @@
 //! Provides the command line interface and subcommands to execute.
 
+pub mod profile;
 pub mod subcommand;
 
 use std::io;
