@@ -3,7 +3,7 @@
 use crate::app::subcommand;
 use crate::{err, util};
 use std::io::Write;
-use std::{collections, fs, io, path};
+use std::{collections, fmt, fs, io, path};
 
 lazy_static::lazy_static! {
     /// The path to the AWS CLI profiles configuration file.
@@ -23,6 +23,12 @@ pub struct Profile {
 
     /// The profile configuration settings.
     settings: collections::HashMap<String, String>,
+}
+
+impl fmt::Display for Profile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }
 
 impl Profile {
