@@ -1,7 +1,7 @@
 //! Manage access to profile templates stored in a file.
 
 use crate::app::subcommand;
-use crate::{err, util};
+use crate::{debug, err, util};
 use std::io::Write;
 use std::{collections, fmt, fs, io, path};
 
@@ -167,6 +167,8 @@ fn process_templates(templates: &Templates) -> subcommand::Result<Profiles> {
 
 /// Reads and processes the templates from a file into ready-to-install AWS CLI profiles.
 pub fn read_templates() -> subcommand::Result<Profiles> {
+    debug!("Reading profiles from: {}", TEMPLATES_FILE.display());
+
     let file = fs::File::open(TEMPLATES_FILE.as_path())?;
     let reader = io::BufReader::new(file);
 
