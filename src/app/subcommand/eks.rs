@@ -17,10 +17,7 @@ impl subcommand::Execute for Subcommand {
         _: &mut impl io::Write,
     ) -> subcommand::Result<()> {
         let clusters = get_clusters(context)?;
-
-        writeln!(error, "Please choose an EKS cluster.\n")?;
-
-        let cluster = util::choose(&clusters);
+        let cluster = util::choose("Please choose an EKS cluster.\n", &clusters);
 
         util::aws(context)
             .arg("eks")
