@@ -25,6 +25,18 @@ pub struct Profile {
     settings: collections::HashMap<String, String>,
 }
 
+impl Profile {
+    /// Returns the enabled state of the profile.
+    pub fn enabled(&self) -> bool {
+        self.enabled
+    }
+
+    /// Returns the name of the profile.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+}
+
 /// A specialized HashMap type for a named collection of profile templates.
 type Profiles = collections::HashMap<String, Profile>;
 
