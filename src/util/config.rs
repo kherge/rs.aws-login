@@ -3,6 +3,16 @@
 use std::path;
 
 lazy_static::lazy_static! {
+    /// The path to the AWS CLI configuration directory.
+    pub static ref AWS_CONFIG_DIR: path::PathBuf = match home::home_dir() {
+        Some(mut path) => {
+            path.push(".aws");
+
+            path
+        },
+        None => panic!("The home directory could not be determined."),
+    };
+
     /// The path to the application configuration directory.
     pub static ref CONFIG_DIR: path::PathBuf = match home::home_dir() {
         Some(mut path) => {
