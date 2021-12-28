@@ -13,7 +13,7 @@ impl subcommand::Execute for Subcommand {
     fn execute(
         &self,
         context: &impl subcommand::Context,
-        error: &mut impl io::Write,
+        _: &mut impl io::Write,
         _: &mut impl io::Write,
     ) -> subcommand::Result<()> {
         let clusters = get_clusters(context)?;
