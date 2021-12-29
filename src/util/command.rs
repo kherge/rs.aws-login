@@ -44,7 +44,7 @@ impl Run {
             err!(
                 process.status.code().unwrap_or(1),
                 String::from_utf8(process.stderr)
-                    .unwrap_or("The error output of, {}, is not valid UTF-8.".into())
+                    .unwrap_or_else(|_| "The error output of, {}, is not valid UTF-8.".into())
             );
         }
     }

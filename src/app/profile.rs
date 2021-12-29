@@ -96,9 +96,7 @@ pub fn exists_in_cli(context: &impl subcommand::Context, name: &str) -> subcomma
         .arg("list-profiles")
         .output()?;
 
-    let profiles = output.split_whitespace().collect::<Vec<&str>>();
-
-    Ok(profiles.contains(&name))
+    Ok(output.split_whitespace().any(|p| p == name))
 }
 
 /// Installs a profile into the AWS CLI.

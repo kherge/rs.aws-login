@@ -80,7 +80,7 @@ impl Installer {
         };
 
         match shell {
-            Shell::BASH => {
+            Shell::Bash => {
                 debug!("We are running in BASH.");
 
                 Ok(Installer {
@@ -90,7 +90,7 @@ impl Installer {
                     startup: home.join(".bashrc"),
                 })
             }
-            Shell::POSIX => {
+            Shell::Posix => {
                 debug!("Assuming a POSIX compliant shell.");
 
                 Ok(Installer {
@@ -100,7 +100,7 @@ impl Installer {
                     startup: home.join(".profile"),
                 })
             }
-            Shell::ZSH => {
+            Shell::Zsh => {
                 debug!("We are running in ZSH.");
 
                 Ok(Installer {
@@ -169,7 +169,7 @@ impl Installer {
                 .create(true)
                 .open(&self.startup)?;
 
-            writeln!(file, "{}", self.inject.replace("{script}", &script_path))?;
+            writeln!(file, "{}", self.inject.replace("{script}", script_path))?;
         }
 
         Ok(())
@@ -183,9 +183,9 @@ impl Installer {
 
 /// The supported shells.
 pub enum Shell {
-    BASH,
-    POSIX,
-    ZSH,
+    Bash,
+    Posix,
+    Zsh,
 }
 
 impl str::FromStr for Shell {
@@ -193,9 +193,9 @@ impl str::FromStr for Shell {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "bash" => Ok(Self::BASH),
-            "posix" => Ok(Self::POSIX),
-            "zsh" => Ok(Self::ZSH),
+            "bash" => Ok(Self::Bash),
+            "posix" => Ok(Self::Posix),
+            "zsh" => Ok(Self::Zsh),
             _ => Err(format!("Unrecognized shell: {}", s)),
         }
     }

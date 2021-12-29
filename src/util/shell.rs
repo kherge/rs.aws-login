@@ -12,7 +12,7 @@ lazy_static::lazy_static! {
         Ok(name) => Some(Shell::from(fs::OpenOptions::new()
             .append(true)
             .open(name)
-            .expect(&format!("{}: could not be opened", PIPE_NAME)))),
+            .unwrap_or_else(|_| panic!("{}: could not be opened", PIPE_NAME)))),
         Err(_) => None,
     });
 }

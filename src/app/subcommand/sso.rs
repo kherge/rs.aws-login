@@ -6,7 +6,7 @@ use std::io;
 use structopt::StructOpt;
 
 /// The required profile configuration parameters for SSO.
-const CONFIG_LIST: &'static [&'static str] = &[
+const CONFIG_LIST: &[&str] = &[
     "sso_account_id",
     "sso_region",
     "sso_role_name",
