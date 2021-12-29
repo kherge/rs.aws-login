@@ -3,8 +3,6 @@ AWS Login
 
 A command line utility to simplify logging into AWS accounts and services.
 
-TBD
-
 Requirements
 ------------
 
@@ -17,17 +15,7 @@ Requirements
 Installation
 ------------
 
-### On Linux
-
-```sh
-# TBD
-```
-
-### On Windows
-
-```powershell
-# TBD
-```
+TBD
 
 Usage
 -----
