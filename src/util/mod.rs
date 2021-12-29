@@ -26,5 +26,6 @@ macro_rules! debug {
 #[cfg(not(debug_assertions))]
 #[macro_export]
 macro_rules! debug {
+    ($message:tt) => {};
     ($message:tt, $($args:tt)*) => {};
 }
