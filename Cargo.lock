@@ -26,7 +26,6 @@ dependencies = [
 name = "aws-login"
 version = "0.1.0"
 dependencies = [
- "console",
  "dialoguer",
  "home",
  "lazy_static",

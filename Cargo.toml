@@ -13,7 +13,6 @@ keywords = ["aws", "login"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-console = "^0.15"
 dialoguer = "^0.9"
 home = "^0.5"
 lazy_static = "^1.4"
