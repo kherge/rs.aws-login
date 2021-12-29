@@ -4,6 +4,10 @@
 # Except this ignore list.
 !/.gitignore
 
+# Except GitHub files.
+!/.github/
+!/.github/**
+
 # Except the license file.
 !/LICENSE
 

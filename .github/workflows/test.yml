@@ -1,0 +1,30 @@
+name: Tests
+
+# Run on PRs created for master.
+on:
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Testing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Toolchain Setup
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: "1.57.0"
+      - name: Unit Tests
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+      - name: Clippy
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --all-targets --all-features -- -D warnings
