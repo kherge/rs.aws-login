@@ -2,6 +2,7 @@
 
 mod ecr;
 mod eks;
+mod install;
 mod pick;
 mod sso;
 
@@ -100,6 +101,9 @@ pub enum Subcommand {
     /// Configures the Kubernetes client to use EKS.
     Eks(eks::Subcommand),
 
+    /// Configures the shell to integrate the binary.
+    Install(install::Subcommand),
+
     /// Configures the AWS CLI or shell environment to use a profile.
     Pick(pick::Subcommand),
 
@@ -117,6 +121,7 @@ impl Execute for Subcommand {
         match self {
             Self::Ecr(cmd) => cmd.execute(context, error, output),
             Self::Eks(cmd) => cmd.execute(context, error, output),
+            Self::Install(cmd) => cmd.execute(context, error, output),
             Self::Pick(cmd) => cmd.execute(context, error, output),
             Self::Sso(cmd) => cmd.execute(context, error, output),
         }
