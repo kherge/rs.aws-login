@@ -2,10 +2,11 @@
 
 mod ecr;
 mod eks;
+mod pick;
 
 #[cfg(test)]
 use std::fmt;
-use std::{io, process, result};
+use std::{env, io, process, result};
 use structopt::StructOpt;
 
 /// A trait for objects which manage application settings.
@@ -40,6 +41,15 @@ impl Error {
     /// Creates a new instance.
     pub fn new(status: i32, message: Option<String>) -> Self {
         Self { message, status }
+    }
+}
+
+impl From<env::VarError> for Error {
+    fn from(error: env::VarError) -> Self {
+        Self {
+            message: Some(format!("{}", error)),
+            status: 1,
+        }
     }
 }
 
@@ -85,8 +95,12 @@ pub type Result<T> = result::Result<T, Error>;
 pub enum Subcommand {
     /// Configures the Docker client to use ECR.
     Ecr(ecr::Subcommand),
+
     /// Configures the Kubernetes client to use EKS.
     Eks(eks::Subcommand),
+
+    /// Configures the AWS CLI or shell environment to use a profile.
+    Pick(pick::Subcommand),
 }
 
 impl Execute for Subcommand {
@@ -99,6 +113,7 @@ impl Execute for Subcommand {
         match self {
             Self::Ecr(cmd) => cmd.execute(context, error, output),
             Self::Eks(cmd) => cmd.execute(context, error, output),
+            Self::Pick(cmd) => cmd.execute(context, error, output),
         }
     }
 }
