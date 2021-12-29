@@ -14,6 +14,7 @@ lazy_static::lazy_static! {
 }
 
 /// A processed profile template ready to be installed.
+#[derive(Eq)]
 pub struct Profile {
     /// The enabled state of the profile.
     enabled: bool,
@@ -28,6 +29,24 @@ pub struct Profile {
 impl fmt::Display for Profile {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.name)
+    }
+}
+
+impl Ord for Profile {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        self.name.cmp(&other.name)
+    }
+}
+
+impl PartialEq for Profile {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+impl PartialOrd for Profile {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.name.cmp(&other.name))
     }
 }
 

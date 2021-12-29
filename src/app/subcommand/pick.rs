@@ -19,14 +19,16 @@ impl subcommand::Execute for Subcommand {
         let profiles = profile::read_templates()?;
         let name = match context.profile() {
             Some(name) => name,
-            None => util::choose(
-                "Please choose a profile:",
-                &profiles
+            None => {
+                let mut profiles = profiles
                     .values()
                     .filter(|p| p.enabled())
-                    .map(|p| p.name())
-                    .collect::<Vec<&str>>(),
-            ),
+                    .collect::<Vec<&profile::Profile>>();
+
+                profiles.sort();
+
+                util::choose("Please choose a profile:", &profiles).name()
+            }
         };
 
         if !profile::exists_in_cli(context, name)? {
