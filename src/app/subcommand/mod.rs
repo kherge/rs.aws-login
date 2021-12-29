@@ -3,6 +3,7 @@
 mod ecr;
 mod eks;
 mod pick;
+mod sso;
 
 #[cfg(test)]
 use std::fmt;
@@ -101,6 +102,9 @@ pub enum Subcommand {
 
     /// Configures the AWS CLI or shell environment to use a profile.
     Pick(pick::Subcommand),
+
+    /// Logs into an AWS account using SSO.
+    Sso(sso::Subcommand),
 }
 
 impl Execute for Subcommand {
@@ -114,6 +118,7 @@ impl Execute for Subcommand {
             Self::Ecr(cmd) => cmd.execute(context, error, output),
             Self::Eks(cmd) => cmd.execute(context, error, output),
             Self::Pick(cmd) => cmd.execute(context, error, output),
+            Self::Sso(cmd) => cmd.execute(context, error, output),
         }
     }
 }
