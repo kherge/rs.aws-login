@@ -3,10 +3,12 @@
 mod command;
 mod config;
 mod interface;
+mod shell;
 
 pub use command::*;
 pub use config::*;
 pub use interface::*;
+pub use shell::*;
 
 /// Prints a debugging message in debug builds.
 #[cfg(debug_assertions)]
