@@ -1,8 +1,8 @@
 name: Releasing
 
 on:
-  release:
-    types: [created]
+  push:
+    tags: "*"
 
 env:
   CARGO_TERM_COLOR: always
@@ -47,4 +47,4 @@ jobs:
           asset_name: ${{ matrix.asset }}
           file: release.zip
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.event.release.tag_name }}
+          tag: ${{ github.ref }}
