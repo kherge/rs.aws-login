@@ -110,7 +110,7 @@ pub fn install_in_cli(profile: &Profile) -> subcommand::Result<()> {
         .create(true)
         .open(AWS_FILE.as_path())?;
 
-    writeln!(file, "{}", rendered)?;
+    write!(file, "{}", rendered)?;
 
     Ok(())
 }
