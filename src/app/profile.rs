@@ -86,9 +86,15 @@ pub fn exists_in_cli(context: &impl subcommand::Context, name: &str) -> subcomma
 pub fn install_in_cli(profile: &Profile) -> subcommand::Result<()> {
     let mut rendered = String::new();
 
-    rendered.push('\n');
     rendered.push('[');
-    rendered.push_str(&profile.name);
+
+    if profile.name == "default" {
+        rendered.push_str("default");
+    } else {
+        rendered.push_str("profile ");
+        rendered.push_str(&profile.name);
+    }
+
     rendered.push(']');
     rendered.push('\n');
 
