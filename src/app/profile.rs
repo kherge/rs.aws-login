@@ -107,6 +107,7 @@ pub fn install_in_cli(profile: &Profile) -> subcommand::Result<()> {
 
     let mut file = fs::OpenOptions::new()
         .append(true)
+        .create(true)
         .open(AWS_FILE.as_path())?;
 
     writeln!(file, "{}", rendered)?;
