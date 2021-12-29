@@ -1,0 +1,49 @@
+name: Releasing
+
+on:
+  release:
+    types: [created]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    name: Release for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            name: aws-login
+            asset: aws-login_macos_amd64.zip
+          - os: ubuntu-latest
+            name: aws-login
+            asset: aws-login_linux_amd64.zip
+          - os: windows-latest
+            name: aws-login.exe
+            asset: aws-login_windows_amd64.zip
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Toolchain Setup
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: "1.57.0"
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --locked
+      - name: Package
+        uses: thedoctor0/zip-release@0.6.0
+        with:
+          path: target/release/${{ matrix.name }}
+          filename: release.zip
+          type: zip
+      - name: Upload
+        uses: svenstaro/upload-release-action@v2
+        with:
+          asset_name: ${{ matrix.asset }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: release.zip
