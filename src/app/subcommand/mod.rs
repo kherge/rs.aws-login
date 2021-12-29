@@ -152,6 +152,7 @@ impl Context for TestContext {
 
 /// A buffered output stream used for testing.
 #[cfg(test)]
+#[derive(Default)]
 pub struct TestStream {
     /// The buffer containing the written contents.
     buffer: Vec<u8>,
@@ -165,13 +166,6 @@ impl fmt::Debug for TestStream {
             "{}",
             String::from_utf8_lossy(&self.buffer).replace('\n', "\\n")
         )
-    }
-}
-
-#[cfg(test)]
-impl Default for TestStream {
-    fn default() -> Self {
-        Self { buffer: Vec::new() }
     }
 }
 
