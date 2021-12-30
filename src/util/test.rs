@@ -67,6 +67,28 @@ impl TestContext {
     pub fn output_as_str(&self) -> &str {
         str::from_utf8(&self.output).unwrap()
     }
+
+    /// Sets the profile option while consuming self.
+    ///
+    /// ```
+    /// let context = TestContext::default().with_profile("example".to_owned());
+    /// ```
+    pub fn with_profile(mut self, profile: String) -> Self {
+        self.profile = Some(profile);
+
+        self
+    }
+
+    /// Sets the region option while consuming self.
+    ///
+    /// ```
+    /// let context = TestContext::default().with_region("us-east-1".to_owned());
+    /// ```
+    pub fn with_region(mut self, region: String) -> Self {
+        self.region = Some(region);
+
+        self
+    }
 }
 
 #[cfg(test)]
@@ -107,5 +129,19 @@ mod test {
         write!(context.output(), "A test message.").unwrap();
 
         assert_eq!(context.output_as_str(), "A test message.");
+    }
+
+    #[test]
+    fn with_profile_set() {
+        let context = TestContext::default().with_profile("test".to_owned());
+
+        assert_eq!(context.profile(), Some("test"));
+    }
+
+    #[test]
+    fn with_region_set() {
+        let context = TestContext::default().with_region("test".to_owned());
+
+        assert_eq!(context.region(), Some("test"));
     }
 }
