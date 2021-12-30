@@ -4,6 +4,7 @@ mod ecr;
 mod eks;
 mod install;
 mod pick;
+mod pull;
 mod sso;
 
 #[cfg(test)]
@@ -107,6 +108,9 @@ pub enum Subcommand {
     /// Configures the AWS CLI or shell environment to use a profile.
     Pick(pick::Subcommand),
 
+    /// Pulls and installs profile templates from a URL.
+    Pull(pull::Subcommand),
+
     /// Logs into an AWS account using SSO.
     Sso(sso::Subcommand),
 }
@@ -123,6 +127,7 @@ impl Execute for Subcommand {
             Self::Eks(cmd) => cmd.execute(context, error, output),
             Self::Install(cmd) => cmd.execute(context, error, output),
             Self::Pick(cmd) => cmd.execute(context, error, output),
+            Self::Pull(cmd) => cmd.execute(context, error, output),
             Self::Sso(cmd) => cmd.execute(context, error, output),
         }
     }
