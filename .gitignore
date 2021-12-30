@@ -18,6 +18,10 @@
 !/Cargo.lock
 !/Cargo.toml
 
+# Except the README assets.
+!/assets/
+!/assets/**
+
 # Except the source files.
 !/src/
 !/src/**/
