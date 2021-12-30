@@ -3,6 +3,19 @@ AWS Login
 
 A command line utility to simplify logging into AWS accounts and services.
 
+- [Requirements](#requirements)
+    - [Development](#development)
+- [Installation](#installation)
+    - [macOS](#macos)
+    - [Integration into Shell](#integration-into-shell)
+- [Usage](#usage)
+    - [Configuring Docker to use ECR](#configuring-docker-to-use-ecr)
+    - [Configure `kubectl` to use EKS](#configure-kubectl-to-use-eks)
+    - [Log into an AWS account using SSO](#log-into-an-aws-account-using-sso)
+    - [Choosing a profile](#choosing-a-profile)
+        - [Working with profile templates](#working-with-profile-templates)
+    - [Downloading and installing profile templates](#downloading-and-installing-profile-templates)
+
 Requirements
 ------------
 
@@ -131,3 +144,9 @@ The `dev-write` profile template is very similar to `dev-read`, except that a di
 As you can see, we have some flexibility with how we define our profile templates. We can define profile settings we commonly use in all of our profiles in one location, and allow other profiles to make adjustments as needed.
 
 These templates are intended to be shared with colleagues in an organization where everyone generally uses the same set of profile configuration settings. With that in mind, it is not advised that any credentials or other sensitive settings be kept in the profile template. Sensitive settings should be defined directly in the AWS CLI profile using `aws --profile <PROFILE> configure set <VALUE>`.
+
+### Downloading and installing profile templates
+
+    aws-login pull https://www.example.com/path/to/templates.json
+
+This command will download a remote profile templates file and store a copy for later use. If a local templates file already exists, you will be asked if you would like to replace it. The subcommand does not currently handle merging of templates.
