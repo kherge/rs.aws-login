@@ -63,7 +63,7 @@ impl Profile {
 }
 
 /// A specialized HashMap type for a named collection of profile templates.
-type Profiles = collections::HashMap<String, Profile>;
+pub type Profiles = collections::HashMap<String, Profile>;
 
 /// An unprocessed profile template as read from the file.
 #[derive(serde::Deserialize)]

@@ -18,23 +18,18 @@ impl subcommand::Execute for Subcommand {
     ) -> subcommand::Result<()> {
         let profiles = profile::read_templates()?;
         let name = match context.profile() {
-            Some(name) => name,
+            Some(name) => name.to_owned(),
             None => {
-                let mut profiles = profiles
-                    .values()
-                    .filter(|p| p.enabled())
-                    .collect::<Vec<&profile::Profile>>();
+                let names = get_cli_profiles(context, &profiles)?;
 
-                profiles.sort();
-
-                util::choose("Please choose a profile:", &profiles).name()
+                util::choose("Please choose a profile:", &names).to_owned()
             }
         };
 
-        if !profile::exists_in_cli(context, name)? {
+        if !profile::exists_in_cli(context, &name)? {
             debug!("Creating the AWS CLI profile...");
 
-            let profile = match profiles.get(name) {
+            let profile = match profiles.get(&name) {
                 Some(profile) => profile,
                 None => err!(1, "A template for the profile, {}, does not exist.", name),
             };
@@ -43,7 +38,7 @@ impl subcommand::Execute for Subcommand {
         }
 
         if let Some(shell) = util::SHELL.lock().unwrap().as_mut() {
-            shell.export("AWS_PROFILE", name)?;
+            shell.export("AWS_PROFILE", &name)?;
         } else {
             writeln!(error, "The application is not integrated into the shell.").unwrap();
             writeln!(error, "Please run the following shell code manually:\n").unwrap();
@@ -52,4 +47,28 @@ impl subcommand::Execute for Subcommand {
 
         Ok(())
     }
+}
+
+/// Gets the list of available AWS CLI profiles and profile templates.
+fn get_cli_profiles(
+    context: &impl subcommand::Context,
+    profiles: &profile::Profiles,
+) -> subcommand::Result<Vec<String>> {
+    let mut names = util::aws(context)
+        .arg("configure")
+        .arg("list-profiles")
+        .output()?
+        .split_whitespace()
+        .map(|n| n.trim().to_owned())
+        .collect::<Vec<String>>();
+
+    profiles.values().filter(|p| p.enabled()).for_each(|p| {
+        if !names.iter().any(|n| n == p.name()) {
+            names.push(p.name().to_owned())
+        }
+    });
+
+    names.sort();
+
+    Ok(names)
 }
