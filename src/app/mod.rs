@@ -8,8 +8,6 @@ use structopt::StructOpt;
 use subcommand::Execute;
 
 /// A command line utility to simplify logging into AWS accounts and services.
-///
-/// TBD
 #[derive(StructOpt)]
 pub struct Application {
     /// Use a specific AWS CLI or template profile to use.
