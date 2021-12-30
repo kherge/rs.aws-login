@@ -1,0 +1,24 @@
+# Exclude everything.
+*
+
+# Except this ignore list.
+!/.gitignore
+
+# Except GitHub files.
+!/.github/
+!/.github/**
+
+# Except the license file.
+!/LICENSE
+
+# Except the README file.
+!/README.md
+
+# Except the manifest.
+!/Cargo.lock
+!/Cargo.toml
+
+# Except the source files.
+!/src/
+!/src/**/
+!/src/**/*.rs
