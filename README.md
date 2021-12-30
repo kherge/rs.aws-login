@@ -37,7 +37,7 @@ On more recent versions of macOS, Gatekeeper will block your attempt to run the 
 
 You only have to do this once per installation or update.
 
-[Releases]: https://github.com/kherge/rs.aws-login/releases
+[Releases]: https://github.com/kherge/rs.aws-login/releases/latest
 [feedback to Apple]: https://www.apple.com/feedback/macos.html
 
 ### Integration into Shell
