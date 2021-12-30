@@ -1,0 +1,91 @@
+//! Provides the primary command line application interface.
+
+use crate::app::{subcommand, Execute};
+use std::io;
+
+/// Manages the global command line options.
+#[derive(structopt::StructOpt)]
+pub struct Application {
+    /// Overrides the active AWS CLI profile.
+    #[structopt(long, global = true)]
+    profile: Option<String>,
+
+    /// Overrides the default AWS region.
+    #[structopt(long, global = true)]
+    region: Option<String>,
+
+    /// The subcommand to execute.
+    #[structopt(subcommand)]
+    subcommand: subcommand::Subcommand,
+}
+
+impl Application {
+    /// Creates a new context and executes the requested subcommand.
+    ///
+    /// ```
+    /// use structopt::StructOpts;
+    ///
+    /// Application::from_args().execute();
+    /// ```
+    pub fn execute(&self) -> super::Result<()> {
+        let mut context = ApplicationContext::new(self);
+
+        self.subcommand.execute(&mut context)
+    }
+}
+
+/// Manages the context in which subcommands are executed.
+struct ApplicationContext {
+    /// The error output stream.
+    error: io::Stderr,
+
+    /// The standard output stream.
+    output: io::Stdout,
+
+    /// The name of the AWS CLI profile.
+    profile: Option<String>,
+
+    /// The name of the AWS region.
+    region: Option<String>,
+}
+
+impl ApplicationContext {
+    /// Creates a new instance using the global options from the application.
+    ///
+    /// The `profile` and `region` options are cloned from the original application instance, but
+    /// new instances of [`io::Stderr`] and [`io::Stdout`] are created for their respective error
+    /// and standard output stream.
+    ///
+    /// ```
+    /// use structopt::StructOpts;
+    ///
+    /// let application = Application::from_args();
+    /// let mut context = ApplicationContext::new(&application);
+    /// ```
+    fn new(application: &Application) -> Self {
+        Self {
+            error: io::stderr(),
+            output: io::stdout(),
+            profile: application.profile.clone(),
+            region: application.region.clone(),
+        }
+    }
+}
+
+impl super::Context for ApplicationContext {
+    fn error(&mut self) -> &mut dyn io::Write {
+        &mut self.error
+    }
+
+    fn output(&mut self) -> &mut dyn io::Write {
+        &mut self.output
+    }
+
+    fn profile(&self) -> Option<&str> {
+        self.profile.as_deref()
+    }
+
+    fn region(&self) -> Option<&str> {
+        self.region.as_deref()
+    }
+}
