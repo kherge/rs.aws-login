@@ -10,7 +10,7 @@ lazy_static::lazy_static! {
     static ref AWS_FILE: path::PathBuf = util::AWS_CONFIG_DIR.join("config");
 
     /// The path to the file containing the profile templates.
-    static ref TEMPLATES_FILE: path::PathBuf = util::CONFIG_DIR.join("templates.json");
+    pub static ref TEMPLATES_FILE: path::PathBuf = util::CONFIG_DIR.join("templates.json");
 }
 
 /// A processed profile template ready to be installed.
