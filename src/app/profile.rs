@@ -132,6 +132,36 @@ pub fn install_in_cli(profile: &Profile) -> subcommand::Result<()> {
     Ok(())
 }
 
+/// Processes the configuration settings from a template into the ready-to-install profile.
+fn process_settings(
+    profile: &mut collections::HashMap<String, String>,
+    template: &collections::HashMap<String, serde_json::Value>,
+) -> subcommand::Result<()> {
+    for (key, value) in template {
+        if !profile.contains_key(key) {
+            use serde_json::Value;
+
+            let key = key.to_owned();
+            let value = match value {
+                Value::Bool(value) => value.to_string(),
+                Value::Null => "".to_owned(),
+                Value::Number(value) => value.to_string(),
+                Value::String(value) => value.to_owned(),
+                _ => {
+                    err!(
+                        1,
+                        "The JSON encoded values of array or object type are not supported."
+                    )
+                }
+            };
+
+            profile.insert(key, value);
+        }
+    }
+
+    Ok(())
+}
+
 /// Processes the raw profile templates into ready-to-install AWS CLI profiles.
 fn process_templates(templates: &Templates) -> subcommand::Result<Profiles> {
     let mut profiles = Profiles::new();
@@ -142,6 +172,8 @@ fn process_templates(templates: &Templates) -> subcommand::Result<Profiles> {
             name: name.to_owned(),
             settings: collections::HashMap::new(),
         };
+
+        process_settings(&mut profile.settings, &template.settings)?;
 
         let mut extends = &template.extends;
         let mut visited: Vec<&String> = Vec::new();
@@ -158,27 +190,7 @@ fn process_templates(templates: &Templates) -> subcommand::Result<Profiles> {
                 None => err!(1, "The profile template, {}, does not exist.", extends_name),
             };
 
-            for (key, value) in &template.settings {
-                if !profile.settings.contains_key(key) {
-                    use serde_json::Value;
-
-                    let key = key.to_owned();
-                    let value = match value {
-                        Value::Bool(value) => value.to_string(),
-                        Value::Null => "".to_owned(),
-                        Value::Number(value) => value.to_string(),
-                        Value::String(value) => value.to_owned(),
-                        _ => {
-                            err!(
-                                1,
-                                "The JSON encoded values of array or object type are not supported."
-                            )
-                        }
-                    };
-
-                    profile.settings.insert(key, value);
-                }
-            }
+            process_settings(&mut profile.settings, &template.settings)?;
 
             extends = &template.extends;
         }
@@ -204,4 +216,55 @@ pub fn read_templates() -> subcommand::Result<Profiles> {
     let profiles = process_templates(&templates)?;
 
     Ok(profiles)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn process_templates_with_extends() {
+        let templates: Templates = serde_json::from_value(json!({
+            "a": {
+                "enabled": false,
+                "settings": {
+                    "first": "1"
+                }
+            },
+            "b": {
+                "enabled": false,
+                "extends": "a",
+                "settings": {
+                    "second": "2"
+                }
+            },
+            "c": {
+                "extends": "b",
+                "settings": {
+                    "third": "3"
+                }
+            },
+            "d": {
+                "extends": "b",
+                "settings": {
+                    "fourth": "4"
+                }
+            }
+        }))
+        .unwrap();
+
+        let profiles: Profiles = process_templates(&templates).unwrap();
+        let c: &Profile = profiles.get("c").unwrap();
+
+        assert_eq!(c.settings.get("first").unwrap(), "1");
+        assert_eq!(c.settings.get("second").unwrap(), "2");
+        assert_eq!(c.settings.get("third").unwrap(), "3");
+
+        let d: &Profile = profiles.get("d").unwrap();
+
+        assert_eq!(d.settings.get("first").unwrap(), "1");
+        assert_eq!(d.settings.get("second").unwrap(), "2");
+        assert_eq!(d.settings.get("fourth").unwrap(), "4");
+    }
 }
