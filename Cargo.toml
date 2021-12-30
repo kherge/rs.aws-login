@@ -1,0 +1,16 @@
+[package]
+name = "aws-login"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.57"
+
+description = "A command line utility to simplify logging into AWS accounts and services."
+license = "ISC"
+authors = ["Kevin Herrera <kevin@herrera.io>"]
+homepage = "https://github.com/kherge/rs.aws-login"
+repository = "https://github.com/kherge/rs.aws-login/"
+keywords = ["aws", "login"]
+categories = ["command-line-utilities"]
+
+[profile.release]
+lto = true
