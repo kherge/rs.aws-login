@@ -12,5 +12,8 @@ repository = "https://github.com/kherge/rs.aws-login/"
 keywords = ["aws", "login"]
 categories = ["command-line-utilities"]
 
+[dependencies]
+structopt = "^0.3"
+
 [profile.release]
 lto = true
