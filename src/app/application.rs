@@ -2,9 +2,11 @@
 
 use crate::app::{subcommand, Execute};
 use std::{io, sync};
+use structopt::clap;
 
 /// Manages the global command line options.
 #[derive(structopt::StructOpt)]
+#[structopt(global_setting(clap::AppSettings::ColoredHelp))]
 pub struct Application {
     /// Overrides the active AWS CLI profile.
     #[structopt(long, global = true)]
