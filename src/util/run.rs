@@ -19,7 +19,7 @@ pub struct Run {
 }
 
 impl Run {
-    /// Adds an argument to the process builder while consuming self.
+    /// Adds an argument to the process builder.
     ///
     /// ```
     /// let mut run = Run::new("my-app")
@@ -202,7 +202,7 @@ impl Run {
     ///     .arg("get")
     ///     .arg("sso_start_url")
     /// ```
-    pub fn with_aws_options(mut self, context: &impl Context) -> Self {
+    pub fn with_aws_options(&mut self, context: &impl Context) -> &mut Self {
         if let Some(profile) = context.profile() {
             self.arg("--profile").arg(profile);
         }
