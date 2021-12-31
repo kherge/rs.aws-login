@@ -193,7 +193,7 @@ impl fmt::Display for Error {
 /// }
 ///
 /// fn main() {
-///     let result = fallable().with_context("A little more detail.");
+///     let result = fallable().with_context(|| "A little more detail.");
 ///
 ///     if let Err(error) = result {
 ///         error.exit();
@@ -202,12 +202,25 @@ impl fmt::Display for Error {
 /// ```
 pub trait ErrorContext {
     /// Adds context if the result is an error.
-    fn with_context(self, context: String) -> Self;
+    ///
+    /// The message function is only called if the result is an error, allowing for lazily
+    /// generating the context message for more computationally expensive contexts.
+    ///
+    /// ```
+    /// let error: Result<()> = Err(Error::new(1).with_message("The error message."))
+    ///     .with_context(|| "The additional context.".to_owned())
+    /// ```
+    fn with_context<M>(self, message: M) -> Self
+    where
+        M: FnOnce() -> String;
 }
 
 impl<T> ErrorContext for Result<T> {
-    fn with_context(self, message: String) -> Result<T> {
-        self.map_err(|error| error.with_context(message))
+    fn with_context<M>(self, message: M) -> Result<T>
+    where
+        M: FnOnce() -> String,
+    {
+        self.map_err(|error| error.with_context(message()))
     }
 }
 
@@ -327,7 +340,7 @@ mod test {
     #[test]
     fn error_with_result_context() {
         let result: Result<()> = Err(Error::new(123).with_message("The message.".to_owned()))
-            .with_context("The context.".to_owned());
+            .with_context(|| "The context.".to_owned());
 
         assert_eq!(
             format!("{}", result.unwrap_err()),

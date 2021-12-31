@@ -16,7 +16,7 @@ impl app::Execute for Subcommand {
             .arg("ecr")
             .arg("get-login-password")
             .output()
-            .with_context("Could not generate ECR password.".to_owned())?;
+            .with_context(|| "Could not generate ECR password.".to_owned())?;
 
         run::Run::new("docker")
             .arg("login")
@@ -26,7 +26,7 @@ impl app::Execute for Subcommand {
             .arg(&password)
             .arg(&registry_uri)
             .pass_through(context)
-            .with_context("Docker could not be configured to use the registry.".to_owned())?;
+            .with_context(|| "Docker could not be configured to use the registry.".to_owned())?;
 
         Ok(())
     }
@@ -44,7 +44,7 @@ fn generate_registry_uri(context: &impl app::Context) -> app::Result<String> {
         .arg("text")
         .output()
         .map(|output| output.trim().to_owned())
-        .with_context("Could not get account ID from AWS CLI.".to_owned())?;
+        .with_context(|| "Could not get account ID from AWS CLI.".to_owned())?;
 
     let region = match context.region() {
         Some(region) => region.to_owned(),
@@ -56,7 +56,7 @@ fn generate_registry_uri(context: &impl app::Context) -> app::Result<String> {
                 .arg("region")
                 .output()
                 .map(|output| output.trim().to_owned())
-                .with_context("Could not get default region from AWS CLI.".to_owned())?;
+                .with_context(|| "Could not get default region from AWS CLI.".to_owned())?;
 
             if output.is_empty() {
                 err!(1, "The region could not be determined.");
