@@ -1,7 +1,7 @@
 //! Provides the primary command line application interface.
 
 use crate::app::{subcommand, Execute};
-use std::io;
+use std::{io, sync};
 
 /// Manages the global command line options.
 #[derive(structopt::StructOpt)]
@@ -37,10 +37,10 @@ impl Application {
 /// Manages the context in which subcommands are executed.
 struct ApplicationContext {
     /// The error output stream.
-    error: io::Stderr,
+    error: sync::Arc<sync::Mutex<io::Stderr>>,
 
     /// The standard output stream.
-    output: io::Stdout,
+    output: sync::Arc<sync::Mutex<io::Stdout>>,
 
     /// The name of the AWS CLI profile.
     profile: Option<String>,
@@ -64,8 +64,8 @@ impl ApplicationContext {
     /// ```
     fn new(application: &Application) -> Self {
         Self {
-            error: io::stderr(),
-            output: io::stdout(),
+            error: sync::Arc::new(sync::Mutex::new(io::stderr())),
+            output: sync::Arc::new(sync::Mutex::new(io::stdout())),
             profile: application.profile.clone(),
             region: application.region.clone(),
         }
@@ -73,12 +73,12 @@ impl ApplicationContext {
 }
 
 impl super::Context for ApplicationContext {
-    fn error(&mut self) -> &mut dyn io::Write {
-        &mut self.error
+    fn error(&mut self) -> sync::Arc<sync::Mutex<dyn io::Write>> {
+        self.error.clone()
     }
 
-    fn output(&mut self) -> &mut dyn io::Write {
-        &mut self.output
+    fn output(&mut self) -> sync::Arc<sync::Mutex<dyn io::Write>> {
+        self.output.clone()
     }
 
     fn profile(&self) -> Option<&str> {

@@ -1,6 +1,6 @@
 //! A subcommand used for testing the application from the command line.
 
-use crate::app;
+use crate::{app, errorln, outputln};
 
 /// The options for the subcommand.
 #[derive(structopt::StructOpt)]
@@ -13,7 +13,7 @@ pub struct Subcommand {
 impl app::Execute for Subcommand {
     fn execute(&self, context: &mut impl app::Context) -> app::Result<()> {
         if self.error {
-            writeln!(context.error(), "Producing an error response.\n")?;
+            errorln!(context, "Producing an error response.\n")?;
 
             let error = app::Error::new(123)
                 .with_message("The --error option was used.".to_owned())
@@ -22,7 +22,7 @@ impl app::Execute for Subcommand {
             return Err(error);
         }
 
-        writeln!(context.output(), "Producing a successful response.")?;
+        outputln!(context, "Producing a successful response.")?;
 
         Ok(())
     }

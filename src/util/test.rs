@@ -1,7 +1,8 @@
 //! Provides types and functions used for testing subcommands.
 
 use crate::app::Context;
-use std::{io, str};
+use crate::{errorln, outputln};
+use std::{io, str, sync};
 
 /// Manages the context for subcommands executed in testing.
 ///
@@ -11,10 +12,10 @@ use std::{io, str};
 #[derive(Default)]
 pub struct TestContext {
     /// The error output buffer.
-    error: Vec<u8>,
+    error: sync::Arc<sync::Mutex<Vec<u8>>>,
 
     /// The standard output buffer.
-    output: Vec<u8>,
+    output: sync::Arc<sync::Mutex<Vec<u8>>>,
 
     /// The AWS CLI profile name.
     profile: Option<String>,
@@ -24,12 +25,12 @@ pub struct TestContext {
 }
 
 impl Context for TestContext {
-    fn error(&mut self) -> &mut dyn io::Write {
-        &mut self.error
+    fn error(&mut self) -> sync::Arc<sync::Mutex<dyn io::Write>> {
+        self.error.clone()
     }
 
-    fn output(&mut self) -> &mut dyn io::Write {
-        &mut self.output
+    fn output(&mut self) -> sync::Arc<sync::Mutex<dyn io::Write>> {
+        self.output.clone()
     }
 
     fn profile(&self) -> Option<&str> {
@@ -51,8 +52,11 @@ impl TestContext {
     ///
     /// assert_eq!(context.error_as_str(), "The error.");
     /// ```
-    pub fn error_as_str(&self) -> &str {
-        str::from_utf8(&self.error).unwrap()
+    pub fn error_as_string(&self) -> String {
+        let lock = self.error.clone();
+        let value = lock.lock().unwrap();
+
+        str::from_utf8(&value).unwrap().to_owned()
     }
 
     /// Returns the standard output buffer as a string slice.
@@ -64,8 +68,11 @@ impl TestContext {
     ///
     /// assert_eq!(context.output_as_str(), "The output.");
     /// ```
-    pub fn output_as_str(&self) -> &str {
-        str::from_utf8(&self.output).unwrap()
+    pub fn output_as_string(&self) -> String {
+        let lock = self.output.clone();
+        let value = lock.lock().unwrap();
+
+        str::from_utf8(&value).unwrap().to_owned()
     }
 
     /// Sets the profile option while consuming self.
@@ -117,18 +124,18 @@ mod test {
     fn read_write_error() {
         let mut context = TestContext::default();
 
-        write!(context.error(), "A test message.").unwrap();
+        errorln!(context, "A test message.").unwrap();
 
-        assert_eq!(context.error_as_str(), "A test message.");
+        assert_eq!(context.error_as_string(), "A test message.\n");
     }
 
     #[test]
     fn read_write_output() {
         let mut context = TestContext::default();
 
-        write!(context.output(), "A test message.").unwrap();
+        outputln!(context, "A test message.").unwrap();
 
-        assert_eq!(context.output_as_str(), "A test message.");
+        assert_eq!(context.output_as_string(), "A test message.\n");
     }
 
     #[test]

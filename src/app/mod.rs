@@ -10,7 +10,7 @@ mod subcommand;
 
 pub use application::Application;
 
-use std::{fmt, io, process};
+use std::{fmt, io, process, sync};
 
 /// A trait for objects that manage the context a subcommand is executed in.
 ///
@@ -18,11 +18,21 @@ use std::{fmt, io, process};
 /// implemented. This allows one context to be created for standard operating procedure,
 /// and another purely for testing.
 pub trait Context {
-    /// Returns the error output stream.
-    fn error(&mut self) -> &mut dyn io::Write;
+    /// Returns a mutex for the error output stream.
+    ///
+    /// It is strongly recommended that the [`errorln`] macro be used to write to this stream.
+    /// Accessing the stream is done through an `Arc<Mutex<dyn Write>>` in order to allow the
+    /// context to be used while the stream is also in use, specifically when running another
+    /// process.
+    fn error(&mut self) -> sync::Arc<sync::Mutex<dyn io::Write>>;
 
-    /// Returns the standard output stream.
-    fn output(&mut self) -> &mut dyn io::Write;
+    /// Returns a mutex for the standard output stream.
+    ///
+    /// It is strongly recommended that the [`outputln`] macro be used to write to this stream.
+    /// Accessing the stream is done through an `Arc<Mutex<dyn Write>>` in order to allow the
+    /// context to be used while the stream is also in use, specifically when running another
+    /// process.
+    fn output(&mut self) -> sync::Arc<sync::Mutex<dyn io::Write>>;
 
     /// Returns the name of the AWS CLI profile.
     fn profile(&self) -> Option<&str>;
@@ -210,6 +220,48 @@ macro_rules! err {
     };
 }
 
+/// A macro shortcut for writing to the context error stream.
+///
+/// This macro simplifies the process of acquiring a lock on the error output stream from
+/// [`Context`] so that it can be written to. The macro takes the same form as [`writeln`],
+/// except that it accepts the `Context` object as the first argument.
+#[macro_export]
+macro_rules! errorln {
+    ($context:expr, $message:expr) => {{
+        let lock = $context.error();
+        let error = &mut *lock.lock().unwrap();
+
+        writeln!(error, $message)
+    }};
+    ($context:expr, $message:tt, $($args:tt)*) => {{
+        let lock = $context.error();
+        let error = &mut *lock.lock().unwrap();
+
+        writeln!(error, $message, $($args)*)
+    }};
+}
+
+/// A macro shortcut for writing to the context output stream.
+///
+/// This macro simplifies the process of acquiring a lock on the standard output stream from
+/// [`Context`] so that it can be written to. The macro takes the same form as [`writeln`],
+/// except that it accepts the `Context` object as the first argument.
+#[macro_export]
+macro_rules! outputln {
+    ($context:expr, $message:expr) => {{
+        let lock = $context.output();
+        let output = &mut *lock.lock().unwrap();
+
+        writeln!(output, $message)
+    }};
+    ($context:expr, $message:tt, $($args:tt)*) => {{
+        let lock = $context.error();
+        let output = &mut *lock.lock().unwrap();
+
+        writeln!(output, $message, $($args)*)
+    }};
+}
+
 /// A specialized [`Result`] for subcommands.
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -257,7 +309,7 @@ mod test {
 
     impl Execute for ErrorSubcommand {
         fn execute(&self, context: &mut impl Context) -> Result<()> {
-            writeln!(context.error(), "Test error output.")?;
+            errorln!(context, "Test error output.")?;
 
             err!(123, "The command failed.");
         }
@@ -268,7 +320,7 @@ mod test {
 
     impl Execute for SuccessSubcommand {
         fn execute(&self, context: &mut impl Context) -> Result<()> {
-            writeln!(context.output(), "Test standard output.")?;
+            outputln!(context, "Test standard output.")?;
 
             Ok(())
         }
@@ -282,7 +334,7 @@ mod test {
 
         assert_eq!(error.message, Some("The command failed.".to_owned()));
         assert_eq!(error.status, 123);
-        assert_eq!(context.error_as_str(), "Test error output.\n");
+        assert_eq!(context.error_as_string(), "Test error output.\n");
     }
 
     #[test]
@@ -292,6 +344,6 @@ mod test {
         let result = subcommand.execute(&mut context);
 
         assert!(result.is_ok());
-        assert_eq!(context.output_as_str(), "Test standard output.\n");
+        assert_eq!(context.output_as_string(), "Test standard output.\n");
     }
 }
