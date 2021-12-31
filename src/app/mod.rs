@@ -182,6 +182,35 @@ impl fmt::Display for Error {
     }
 }
 
+/// A trait to add context to error results.
+///
+/// ```
+/// use crate::app::{ErrorContext, Result};
+/// use crate::err;
+///
+/// fn fallable() -> Result<()> {
+///     err!(1, "Nope!");
+/// }
+///
+/// fn main() {
+///     let result = fallable().with_context("A little more detail.");
+///
+///     if let Err(error) = result {
+///         error.exit();
+///     }
+/// }
+/// ```
+pub trait ErrorContext {
+    /// Adds context if the result is an error.
+    fn with_context(self, context: String) -> Self;
+}
+
+impl<T> ErrorContext for Result<T> {
+    fn with_context(self, message: String) -> Result<T> {
+        self.map_err(|error| error.with_context(message))
+    }
+}
+
 /// A trait for objects that can be executed as a subcommand.
 pub trait Execute {
     /// Executes the subcommand with the given context.
@@ -293,6 +322,17 @@ mod test {
             format!("{}", error),
             "The parent parent context.\n  The parent context.\n    The message.\n"
         );
+    }
+
+    #[test]
+    fn error_with_result_context() {
+        let result: Result<()> = Err(Error::new(123).with_message("The message.".to_owned()))
+            .with_context("The context.".to_owned());
+
+        assert_eq!(
+            format!("{}", result.unwrap_err()),
+            "The context.\n  The message.\n"
+        )
     }
 
     #[test]
