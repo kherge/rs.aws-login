@@ -1,6 +1,7 @@
 //! Provides the application subcommands to be executed.
 
 mod debug;
+mod ecr;
 
 use crate::app;
 
@@ -16,11 +17,20 @@ pub enum Subcommand {
     /// Prints debugging messages for the application.
     #[cfg(debug_assertions)]
     Debug(debug::Subcommand),
+
+    /// Configures Docker to use AWS ECR.
+    ///
+    /// This subcommand will generate the registry URI for the account in your active AWS CLI
+    /// profile, generate a new ECR password, and use the Docker client to log into the AWS ECR
+    /// service.
+    Ecr(ecr::Subcommand),
 }
 
 impl app::Execute for Subcommand {
     fn execute(&self, context: &mut impl app::Context) -> app::Result<()> {
         match self {
+            Self::Ecr(cmd) => cmd.execute(context),
+
             #[cfg(debug_assertions)]
             Self::Debug(cmd) => cmd.execute(context),
         }
