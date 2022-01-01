@@ -1,8 +1,8 @@
 //! A subcommand used to create and/or select an AWS CLI profile.
 
 use crate::app::{self, profile, ErrorContext};
-use crate::err;
-use crate::util::{run, term};
+use crate::util::{run, shell, term};
+use crate::{err, errorln};
 
 /// The options for the subcommand.
 #[derive(structopt::StructOpt)]
@@ -40,7 +40,13 @@ impl app::Execute for Subcommand {
             }
         }
 
-        // TODO export AWS_PROFILE={}
+        match shell::get_env() {
+            Some(mut env) => env.set_var("AWS_PROFILE", &profile)?,
+            None => {
+                errorln!(context, "Unable to automatically switch AWS CLI profiles.")?;
+                errorln!(context, "(Not integreated into the shell environment.)")?;
+            }
+        }
 
         Ok(())
     }
