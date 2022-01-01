@@ -1,0 +1,2 @@
+# Except shell scripts.
+!/**/*.sh
