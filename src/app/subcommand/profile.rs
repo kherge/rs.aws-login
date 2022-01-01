@@ -22,6 +22,7 @@ impl app::Execute for Subcommand {
                     .collect::<Vec<&str>>();
 
                 merged.sort();
+                merged.dedup();
 
                 if merged.len() == 0 {
                     err!(1, "There are no profiles available to choose from.");
