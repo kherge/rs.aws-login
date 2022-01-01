@@ -50,7 +50,8 @@ impl app::Execute for Subcommand {
 fn create_profile(context: &mut impl app::Context, profile: &profile::Profile) -> app::Result<()> {
     for (key, value) in profile.settings() {
         run::Run::new("aws")
-            .with_aws_options(context)
+            .arg("--profile")
+            .arg(profile.name())
             .arg("configure")
             .arg("set")
             .arg(key)
