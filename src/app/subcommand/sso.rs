@@ -1,4 +1,4 @@
-//! A subcommand used to authentication into an AWS account using SSO.
+//! A subcommand used to authenticate into an AWS account using SSO.
 
 use crate::app::{self, ErrorContext};
 use crate::util::run;
