@@ -145,13 +145,17 @@ pub fn get_profiles() -> app::Result<Profiles> {
 
 /// Reads and parses profile templates from a JSON encoded file.
 fn get_templates() -> app::Result<Templates> {
+    if !TEMPLATES_FILE.exists() {
+        return Ok(Templates::new());
+    }
+
     let file = match fs::File::open(TEMPLATES_FILE.as_path()) {
         Ok(file) => file,
         Err(error) => {
             return Err(app::Error::from(error).with_context(format!(
                 "Could not read the profile templates file: {}",
                 TEMPLATES_FILE.display()
-            )))
+            )));
         }
     };
 
