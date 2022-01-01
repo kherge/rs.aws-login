@@ -13,19 +13,10 @@ lazy_static::lazy_static! {
         None => panic!("The home directory could not be determined."),
     };
 
-    /// The name of the binary being executed, which should be this application.
-    ///
-    /// The processes that depend on this value will all assume that the binary is available in
-    /// the user's `PATH`. The installation guide must include information on this requirement to
-    /// prevent any confusion on their end.
+    /// The absolute path to the application binary.
     pub static ref BIN_NAME: String = env::current_exe()
-        .map(|path| {
-            path
-                .file_name()
-                .map(|s| s.to_string_lossy().to_string())
-                .expect("Could not create a string for the application name.")
-        })
-        .expect("The name of this application could not be determined.");
+        .map(|s| s.to_string_lossy().to_string())
+        .expect("Could not create a string for the application name.");
 
     /// The path to the application configuration directory.
     pub static ref CONFIG_DIR: path::PathBuf = match home::home_dir() {
