@@ -13,20 +13,20 @@ impl app::Execute for Subcommand {
         let existing = get_existing_profiles(context)?;
         let profiles = profile::get_profiles()?;
         let profile = match context.profile() {
-            Some(profile) => profile,
-            None => term::select(
-                "Please select a profile to use:",
-                &profiles
-                    .iter()
-                    .map(|(_, v)| v)
-                    .collect::<Vec<&profile::Profile>>(),
-            )
-            .map(|p| p.name())
-            .with_context(|| "Unable to selecet a profile.".to_owned())?,
+            Some(profile) => profile.to_owned(),
+            None => {
+                let merged = profiles
+                    .keys()
+                    .map(|s| s.as_str())
+                    .chain(existing.iter().map(|s| s.as_str()))
+                    .collect::<Vec<&str>>();
+
+                term::select("Please select a profile to use:", &merged)?.to_string()
+            }
         };
 
-        if !existing.iter().any(|p| p == profile) {
-            if let Some(profile) = profiles.get(profile) {
+        if !existing.iter().any(|p| p == profile.as_str()) {
+            if let Some(profile) = profiles.get(&profile) {
                 create_profile(context, profile)?;
             } else {
                 err!(1, "The profile, {}, does not exist.", profile);
