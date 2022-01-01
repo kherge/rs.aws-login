@@ -3,7 +3,7 @@
 use crate::app::ErrorContext;
 use crate::util::config;
 use crate::{app, err};
-use std::{collections, fs, io, path};
+use std::{collections, fmt, fs, io, path};
 
 lazy_static::lazy_static! {
     /// The path to the file containing the profile templates.
@@ -17,6 +17,12 @@ pub struct Profile {
 
     /// The profile configuration settings.
     settings: collections::HashMap<String, String>,
+}
+
+impl fmt::Display for Profile {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
 }
 
 /// A specialized [`Result`] type for a named collection of [`Profile`].
