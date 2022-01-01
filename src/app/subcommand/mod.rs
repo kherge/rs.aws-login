@@ -4,6 +4,7 @@ mod debug;
 mod ecr;
 mod eks;
 mod profile;
+mod shell;
 mod sso;
 
 use crate::app;
@@ -44,6 +45,14 @@ pub enum Subcommand {
     #[structopt(name = "use")]
     Profile(profile::Subcommand),
 
+    /// Integrates the application into the shell environment.
+    ///
+    /// This subcommand is capable of modifying the shell profile to inject code required to
+    /// integrate the application into the environment. This integration allows the utility
+    /// to make temporary modifications such as setting an environment variable. This is used in
+    /// situations where it would simplify the use of the AWS CLI (such as setting AWS_PROFILE).
+    Shell(shell::Subcommand),
+
     /// Logs into an AWS account using SSO.
     ///
     /// This subcommand will attempt to log into the AWS account configured for the active AWS CLI
@@ -59,6 +68,7 @@ impl app::Execute for Subcommand {
             Self::Ecr(cmd) => cmd.execute(context),
             Self::Eks(cmd) => cmd.execute(context),
             Self::Profile(cmd) => cmd.execute(context),
+            Self::Shell(cmd) => cmd.execute(context),
             Self::Sso(cmd) => cmd.execute(context),
 
             #[cfg(debug_assertions)]
