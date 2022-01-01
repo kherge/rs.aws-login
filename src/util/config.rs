@@ -21,7 +21,7 @@ lazy_static::lazy_static! {
     pub static ref BIN_NAME: String = env::args()
         .nth(0)
         .map(|name| path::PathBuf::from(name))
-        .and_then(|path| path.file_name())
+        .and_then(|path| path.file_name().map(|s| s.to_owned()))
         .map(|result| result.to_string_lossy().to_string())
         .unwrap_or_else(|| "Unable to determine the name of this application.".to_owned());
 
