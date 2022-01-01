@@ -25,6 +25,18 @@ impl fmt::Display for Profile {
     }
 }
 
+impl Profile {
+    /// Returns the name of the profile.
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    /// Returns the profile configuration settings.
+    pub fn settings(&self) -> &collections::HashMap<String, String> {
+        &self.settings
+    }
+}
+
 /// A specialized [`Result`] type for a named collection of [`Profile`].
 pub type Profiles = collections::HashMap<String, Profile>;
 
