@@ -15,11 +15,13 @@ impl app::Execute for Subcommand {
         let profile = match context.profile() {
             Some(profile) => profile.to_owned(),
             None => {
-                let merged = profiles
+                let mut merged = profiles
                     .keys()
                     .map(|s| s.as_str())
                     .chain(existing.iter().map(|s| s.as_str()))
                     .collect::<Vec<&str>>();
+
+                merged.sort();
 
                 if merged.len() == 0 {
                     err!(1, "There are no profiles available to choose from.");
