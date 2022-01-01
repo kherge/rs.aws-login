@@ -3,6 +3,7 @@
 mod debug;
 mod ecr;
 mod eks;
+mod sso;
 
 use crate::app;
 
@@ -32,6 +33,14 @@ pub enum Subcommand {
     /// for your active AWS CLI profile. Once a cluster is selected, kubectl's configuration
     /// will be updated to support accessing it.
     Eks(eks::Subcommand),
+
+    /// Logs into an AWS account using SSO.
+    ///
+    /// This subcommand will attempt to log into the AWS account configured for the active AWS CLI
+    /// profile, or prompt you to configure the active profile for SSO authentication. If the AWS
+    /// CLI profile requires configuration, it will be a one time event. Future attempts will use
+    /// the settings already provided.
+    Sso(sso::Subcommand),
 }
 
 impl app::Execute for Subcommand {
@@ -39,6 +48,7 @@ impl app::Execute for Subcommand {
         match self {
             Self::Ecr(cmd) => cmd.execute(context),
             Self::Eks(cmd) => cmd.execute(context),
+            Self::Sso(cmd) => cmd.execute(context),
 
             #[cfg(debug_assertions)]
             Self::Debug(cmd) => cmd.execute(context),
