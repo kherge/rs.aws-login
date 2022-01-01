@@ -88,7 +88,7 @@ impl Run {
     /// for these errors.
     pub fn output(&mut self) -> Result<String> {
         Runtime::new()?.block_on(async {
-            let output = self.builder.output().await?;
+            let output = self.builder.stdin(Stdio::inherit()).output().await?;
 
             if output.status.success() {
                 let string = String::from_utf8_lossy(output.stdout.as_slice());
@@ -124,6 +124,7 @@ impl Run {
             let mut child = self
                 .builder
                 .stderr(Stdio::piped())
+                .stdin(Stdio::inherit())
                 .stdout(Stdio::piped())
                 .spawn()?;
 
@@ -145,6 +146,7 @@ impl Run {
                                 Ok(0) => break,
                                 Ok(_) => {
                                     stderr_target.write(&buffer)?;
+                                    stderr_target.flush()?;
                                 }
                                 Err(error) => err!(1, "{}", error),
                             }
@@ -163,6 +165,7 @@ impl Run {
                                 Ok(0) => break,
                                 Ok(_) => {
                                     stdout_target.write(&buffer)?;
+                                    stdout_target.flush()?;
                                 }
                                 Err(error) => err!(1, "{}", error),
                             }
