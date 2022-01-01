@@ -22,3 +22,6 @@
 !/src/
 !/src/**/
 !/src/**/*.rs
+
+# Except other ignore files.
+!/**/.gitignore
