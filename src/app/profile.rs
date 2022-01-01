@@ -163,7 +163,12 @@ fn get_templates() -> app::Result<Templates> {
 
     match serde_json::from_reader(reader) {
         Ok(templates) => Ok(templates),
-        Err(error) => err!(1, "{}", error),
+        Err(error) => Err(app::Error::new(1)
+            .with_message(format!("{}", error))
+            .with_context(format!(
+                "Could not parse the profile templates file: {}",
+                TEMPLATES_FILE.display()
+            ))),
     }
 }
 
