@@ -6,6 +6,7 @@
 //! output streams for later testing.
 
 mod application;
+mod profile;
 mod subcommand;
 
 pub use application::Application;
