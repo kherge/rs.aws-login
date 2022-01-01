@@ -298,7 +298,7 @@ macro_rules! outputln {
         writeln!(output, $message)
     }};
     ($context:expr, $message:tt, $($args:tt)*) => {{
-        let lock = $context.error();
+        let lock = $context.output();
         let output = &mut *lock.lock().unwrap();
 
         writeln!(output, $message, $($args)*)
