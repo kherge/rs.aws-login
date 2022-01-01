@@ -1,4 +1,4 @@
-//! A subcommand used to configure Docker to use the AWS Elastic Container Registry.
+//! A subcommand used to authentication into an AWS account using SSO.
 
 use crate::app::{self, ErrorContext};
 use crate::util::run;
