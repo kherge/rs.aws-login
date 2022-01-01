@@ -21,6 +21,10 @@ impl app::Execute for Subcommand {
                     .chain(existing.iter().map(|s| s.as_str()))
                     .collect::<Vec<&str>>();
 
+                if merged.len() == 0 {
+                    err!(1, "There are no profiles available to choose from.");
+                }
+
                 term::select("Please select a profile to use:", &merged)?.to_string()
             }
         };
