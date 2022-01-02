@@ -1,12 +1,20 @@
 //! Provides a simplified and well integrated interface to [`Command`].
 
-use crate::app::{Context, Result};
+use crate::app::{Context, Error, Result};
 use crate::err;
+use std::collections::HashMap;
 use std::process::Stdio;
+use std::sync::Mutex;
 use tokio::io::AsyncReadExt;
 use tokio::join;
 use tokio::process::Command;
 use tokio::runtime::Runtime;
+use which::which;
+
+lazy_static::lazy_static! {
+    /// Caches the check performed for each program in `PATH`.
+    static ref CHECK_CACHE: Mutex<HashMap<String, bool>> = Mutex::new(HashMap::new());
+}
 
 /// Simplifies the building of a new [`Command`] instance.
 pub struct Run {
@@ -16,6 +24,9 @@ pub struct Run {
 
     /// The process builder.
     builder: Command,
+
+    /// The name of the program.
+    program: String,
 }
 
 impl Run {
@@ -61,6 +72,7 @@ impl Run {
             #[cfg(debug_assertions)]
             arguments: Vec::new(),
             builder: Command::new(name),
+            program: name.to_owned(),
         }
     }
 
@@ -87,6 +99,10 @@ impl Run {
     /// with the error output being used as the message. It is recommended that context be added
     /// for these errors.
     pub fn output(&mut self) -> Result<String> {
+        if !in_path(&self.program)? {
+            err!(1, "The program, {}, could be found in PATH.");
+        }
+
         Runtime::new()?.block_on(async {
             let output = self.builder.stdin(Stdio::inherit()).output().await?;
 
@@ -120,6 +136,10 @@ impl Run {
     ///     .pass_through(&mut context)?;
     /// ```
     pub fn pass_through(&mut self, context: &mut impl Context) -> Result<()> {
+        if !in_path(&self.program)? {
+            err!(1, "The program, {}, could be found in PATH.");
+        }
+
         Runtime::new()?.block_on(async {
             let mut child = self
                 .builder
@@ -218,6 +238,28 @@ impl Run {
     }
 }
 
+/// Checks if a program can be found in `PATH`.
+fn in_path(program: &str) -> Result<bool> {
+    let mut cache = match CHECK_CACHE.lock() {
+        Ok(cache) => cache,
+        Err(error) => {
+            return Err(Error::new(1)
+                .with_message(format!("{}", error))
+                .with_context("Could not acquire lock on CHECK_CACHE.".to_owned()))
+        }
+    };
+
+    if let Some(status) = cache.get(program) {
+        Ok(*status)
+    } else {
+        let status = which(program).is_ok();
+
+        cache.insert(program.to_owned(), status);
+
+        Ok(status)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -259,6 +301,17 @@ mod test {
 
         assert!(result.is_ok());
         assert_eq!(result.unwrap(), "Hello, world!");
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn found_in_path() {
+        assert!(in_path("printf").unwrap());
+
+        let cache = CHECK_CACHE.lock().unwrap();
+
+        assert!(cache.contains_key("printf"));
+        assert!(cache.get("printf").unwrap());
     }
 
     #[cfg(unix)]
