@@ -36,9 +36,11 @@ lazy_static::lazy_static! {
             None => panic!("The home directory could not be determined."),
         };
 
-        if !path.exists() {
-            fs::create_dir_all(&path)
-                .unwrap_or_else(|_| panic!("The configuration directory could not be created."));
+        if !path.is_dir() {
+            fs::create_dir_all(&path).unwrap_or_else(|error| panic!(
+                "The configuration directory could not be created: {}",
+                error
+            ));
         }
 
         path
