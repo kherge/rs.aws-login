@@ -104,18 +104,20 @@ mod test {
 
     #[test]
     fn get_profile() {
-        let mut context = TestContext::default();
-
-        context.profile = Some("test".to_owned());
+        let context = TestContext {
+            profile: Some("test".to_owned()),
+            ..TestContext::default()
+        };
 
         assert_eq!(context.profile(), Some("test"));
     }
 
     #[test]
     fn get_region() {
-        let mut context = TestContext::default();
-
-        context.region = Some("test".to_owned());
+        let context = TestContext {
+            region: Some("test".to_owned()),
+            ..TestContext::default()
+        };
 
         assert_eq!(context.region(), Some("test"));
     }
