@@ -4,6 +4,7 @@ mod debug;
 mod ecr;
 mod eks;
 mod profile;
+mod pull;
 mod shell;
 mod sso;
 
@@ -45,6 +46,15 @@ pub enum Subcommand {
     #[structopt(name = "use")]
     Profile(profile::Subcommand),
 
+    /// Downloads profile templates from a URL.
+    ///
+    /// This subcommand will download profile templates from a URL and store them in the local
+    /// templates.json file (~/.config/aws-login/ or %APPDATA%\Roaming\AWS Login\). If a local
+    /// templates file already exists, you will be asked to replace all of the templates or merge
+    /// with the existing ones. If a merge is selected, the downloaded templates will replace any
+    /// existing templates of the same name.
+    Pull(pull::Subcommand),
+
     /// Integrates the application into the shell environment.
     ///
     /// This subcommand is capable of modifying the shell profile to inject code required to
@@ -68,6 +78,7 @@ impl app::Execute for Subcommand {
             Self::Ecr(cmd) => cmd.execute(context),
             Self::Eks(cmd) => cmd.execute(context),
             Self::Profile(cmd) => cmd.execute(context),
+            Self::Pull(cmd) => cmd.execute(context),
             Self::Shell(cmd) => cmd.execute(context),
             Self::Sso(cmd) => cmd.execute(context),
 
