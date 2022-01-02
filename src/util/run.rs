@@ -100,7 +100,7 @@ impl Run {
     /// for these errors.
     pub fn output(&mut self) -> Result<String> {
         if !in_path(&self.program)? {
-            err!(1, "The program, {}, could be found in PATH.");
+            err!(1, "The program, {}, could be found in PATH.", self.program);
         }
 
         Runtime::new()?.block_on(async {
@@ -137,7 +137,7 @@ impl Run {
     /// ```
     pub fn pass_through(&mut self, context: &mut impl Context) -> Result<()> {
         if !in_path(&self.program)? {
-            err!(1, "The program, {}, could be found in PATH.");
+            err!(1, "The program, {}, could be found in PATH.", self.program);
         }
 
         Runtime::new()?.block_on(async {
@@ -303,6 +303,17 @@ mod test {
         assert_eq!(result.unwrap(), "Hello, world!");
     }
 
+    #[test]
+    fn collect_output_not_in_path() {
+        let result = Run::new("does-not-exist").output();
+
+        assert!(result.is_err());
+        assert_eq!(
+            format!("{}", result.unwrap_err()),
+            "The program, does-not-exist, could be found in PATH.\n"
+        );
+    }
+
     #[cfg(unix)]
     #[test]
     fn found_in_path() {
@@ -312,6 +323,16 @@ mod test {
 
         assert!(cache.contains_key("printf"));
         assert!(cache.get("printf").unwrap());
+    }
+
+    #[test]
+    fn not_found_in_path() {
+        assert!(!in_path("does-not-exist").unwrap());
+
+        let cache = CHECK_CACHE.lock().unwrap();
+
+        assert!(cache.contains_key("does-not-exist"));
+        assert!(!cache.get("does-not-exist").unwrap());
     }
 
     #[cfg(unix)]
@@ -326,5 +347,17 @@ mod test {
 
         assert!(result.is_ok());
         assert_eq!(context.output_as_string(), "Hello, world!");
+    }
+
+    #[test]
+    fn pass_through_output_not_in_path() {
+        let mut context = TestContext::default();
+        let result = Run::new("does-not-exist").pass_through(&mut context);
+
+        assert!(result.is_err());
+        assert_eq!(
+            format!("{}", result.unwrap_err()),
+            "The program, does-not-exist, could be found in PATH.\n"
+        );
     }
 }
