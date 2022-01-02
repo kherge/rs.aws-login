@@ -8,7 +8,7 @@ body:
       label: The following checks have been done.
       description: Please go through the list and make sure you did each step.
       options:
-        - label: I could not find another feature that covers what I need.
+        - label: I could not find another feature request that covers what I need.
           required: true
         - label: This request does not cover existing functionality.
           required: true
