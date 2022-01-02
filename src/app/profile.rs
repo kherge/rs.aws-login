@@ -41,8 +41,8 @@ impl Profile {
 pub type Profiles = collections::HashMap<String, Profile>;
 
 /// Manages a profile template that can be used to generate an AWS CLI profile.
-#[derive(serde::Deserialize)]
-struct Template {
+#[derive(serde::Deserialize, serde::Serialize)]
+pub struct Template {
     /// The flag used to determine if the profile can be use directly.
     #[serde(default = "Template::enabled_default")]
     enabled: bool,
