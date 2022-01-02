@@ -1,11 +1,14 @@
 Origin
 ======
 
-<!-- Please replace this with issue number this PR is for. -->
-<!-- If one does not exist, please create one before creating the PR. -->
+<!--
+Please replace this with the issue number this PR is for (e.g. #133).
+If an issue does not already exist, please create one before this PR.
+-->
 
+<!--
 Additional Context
 ------------------
 
-<!-- Please add any additional context here. -->
-<!-- If there is none, please delete this whole section. -->
+Uncomment this section to add additional context.
+-->
