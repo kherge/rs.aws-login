@@ -1,6 +1,6 @@
 name: Feature Request
 description: Use this template to request a new feature.
-title: "[FEATURE NAME]"
+title: "A short name to describe your feature."
 labels: [Feature]
 body:
   - type: checkboxes
