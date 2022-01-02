@@ -59,7 +59,7 @@ impl app::Execute for Subcommand {
 
         match &self.action {
             Action::Init => outputln!(context, "{}", env.generate_script())
-                .map_err(|error| app::Error::from(error))
+                .map_err(app::Error::from)
                 .with_context(|| "Could not write initialization script to output.".to_owned())?,
             Action::Install => {
                 let installed = env.is_installed().with_context(|| {

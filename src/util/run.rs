@@ -145,7 +145,7 @@ impl Run {
                             match stderr_source.read(&mut buffer).await {
                                 Ok(0) => break,
                                 Ok(_) => {
-                                    stderr_target.write(&buffer)?;
+                                    stderr_target.write_all(&buffer)?;
                                     stderr_target.flush()?;
                                 }
                                 Err(error) => err!(1, "{}", error),
@@ -164,7 +164,7 @@ impl Run {
                             match stdout_source.read(&mut buffer).await {
                                 Ok(0) => break,
                                 Ok(_) => {
-                                    stdout_target.write(&buffer)?;
+                                    stdout_target.write_all(&buffer)?;
                                     stdout_target.flush()?;
                                 }
                                 Err(error) => err!(1, "{}", error),

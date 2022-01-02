@@ -42,19 +42,16 @@ fn is_configured(context: &impl app::Context) -> app::Result<bool> {
     let mut has = 0;
 
     for key in REQUIRED_SETTINGS {
-        match run::Run::new("aws")
+        if let Ok(value) = run::Run::new("aws")
             .with_aws_options(context)
             .arg("configure")
             .arg("get")
             .arg(key)
             .output()
         {
-            Ok(value) => {
-                if !value.trim().is_empty() {
-                    has += 1;
-                }
+            if !value.trim().is_empty() {
+                has += 1;
             }
-            Err(_) => {}
         };
     }
 

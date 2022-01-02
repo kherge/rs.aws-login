@@ -74,7 +74,7 @@ impl Template {
         for (key, value) in &self.settings {
             settings.insert(
                 key.clone(),
-                convert_value(&value)
+                convert_value(value)
                     .with_context(|| format!("Could not convert the value of, {}.", key))?,
             );
         }

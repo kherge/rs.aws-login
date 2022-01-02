@@ -48,7 +48,7 @@ pub fn get_env() -> Option<Box<dyn Environment>> {
     match env::var(SHELL_NAME).as_deref() {
         Ok("bash") => Some(Box::new(bash::Environment::default())),
         Ok("zsh") => Some(Box::new(zsh::Environment::default())),
-        _ => return None,
+        _ => None,
     }
 }
 
@@ -61,6 +61,6 @@ pub fn get_setup(shell: &str, profile: Option<&str>) -> Option<Box<dyn Setup>> {
     match shell {
         "bash" => Some(Box::new(bash::Setup::new(profile))),
         "zsh" => Some(Box::new(zsh::Setup::new(profile))),
-        _ => return None,
+        _ => None,
     }
 }

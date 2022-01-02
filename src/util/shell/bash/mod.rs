@@ -32,7 +32,7 @@ pub struct Environment {
 impl super::Environment for Environment {
     fn set_var(&mut self, name: &str, value: &str) -> crate::app::Result<()> {
         write!(self.file, "export {}=\"{}\"", name, value)
-            .map_err(|error| app::Error::from(error))
+            .map_err(app::Error::from)
             .with_context(|| "Could not set environment variable.".to_owned())
     }
 }
@@ -47,10 +47,7 @@ impl Default for Environment {
             .create(true)
             .append(true)
             .open(&path)
-            .expect(&format!(
-                "{}: Unable to open the file for writing.",
-                path.display()
-            ));
+            .unwrap_or_else(|_| panic!("{}: Unable to open the file for writing.", path.display()));
 
         Self { file }
     }
@@ -66,8 +63,8 @@ impl Setup {
     /// Creates a new instance of [`Setup`] for managing Bash integration.
     pub fn new(profile: Option<&str>) -> Self {
         let script = profile
-            .map(|s| path::PathBuf::from(s))
-            .unwrap_or(get_default_profile());
+            .map(path::PathBuf::from)
+            .unwrap_or_else(get_default_profile);
 
         Self { script }
     }

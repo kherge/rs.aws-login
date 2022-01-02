@@ -21,10 +21,10 @@ impl app::Execute for Subcommand {
                     .chain(existing.iter().map(|s| s.as_str()))
                     .collect::<Vec<&str>>();
 
-                merged.sort();
+                merged.sort_unstable();
                 merged.dedup();
 
-                if merged.len() == 0 {
+                if merged.is_empty() {
                     err!(1, "There are no profiles available to choose from.");
                 }
 
