@@ -1,4 +1,4 @@
-//! Provides support for integrating into PowerShell.
+//! Provides support for integrating into the Fish shell.
 //!
 //! This support module will allow the application to generate a shell script that is evaluated
 //! once the application has exited. The location of the script will depend on the value of the
@@ -23,7 +23,7 @@ const INSTALLED_COMMENT: &str = "# Integrate aws-login into the shell environmen
 /// exits, the parent process is expected to evaluate and then clean up the file.
 const SCRIPT_PATH: &str = "AWS_LOGIN_SCRIPT";
 
-/// Manages the current PowerShell environment.
+/// Manages the current Fish environment.
 pub struct Environment {
     /// The file that will be used to evaluate shell code.
     file: fs::File,
@@ -31,7 +31,7 @@ pub struct Environment {
 
 impl super::Environment for Environment {
     fn set_var(&mut self, name: &str, value: &str) -> crate::app::Result<()> {
-        write!(self.file, "$Env:{} = '{}'", name, value)
+        write!(self.file, "set -gx {} \"{}\"", name, value)
             .map_err(app::Error::from)
             .with_context(|| "Could not set environment variable.".to_owned())
     }
@@ -53,14 +53,14 @@ impl Default for Environment {
     }
 }
 
-/// Manages the integration of the application into a PowerShell environment.
+/// Manages the integration of the application into a Fish environment.
 pub struct Setup {
     /// The path to the profile startup script.
     script: path::PathBuf,
 }
 
 impl Setup {
-    /// Creates a new instance of [`Setup`] for managing PowerShell integration.
+    /// Creates a new instance of [`Setup`] for managing Fish integration.
     pub fn new(profile: Option<&str>) -> Self {
         let script = profile
             .map(path::PathBuf::from)
@@ -72,7 +72,7 @@ impl Setup {
 
 impl super::Setup for Setup {
     fn generate_script(&self) -> String {
-        include_str!("init.ps1")
+        include_str!("init.fish")
             .replace("{AWS_LOGIN}", &config::BIN_NAME)
             .replace("{AWS_LOGIN_SHELL}", super::SHELL_NAME)
     }
@@ -97,11 +97,7 @@ impl super::Setup for Setup {
             .open(&self.script)?;
 
         writeln!(handle, "\n{}", INSTALLED_COMMENT)?;
-        writeln!(
-            handle,
-            "Invoke-Expression (&{} shell init -s powershell | Out-String)",
-            *config::BIN_NAME
-        )?;
+        writeln!(handle, "{} shell init -s fish | source", *config::BIN_NAME)?;
 
         Ok(())
     }
@@ -121,17 +117,9 @@ impl super::Setup for Setup {
 
 /// Generates the path to the default profile script location.
 fn get_default_profile() -> path::PathBuf {
-    if cfg!(windows) {
-        home::home_dir()
-            .expect("The home directory could not be determined.")
-            .join("Documents")
-            .join("WindowsPowerShell")
-            .join("Microsoft.PowerShell_profile.ps1")
-    } else {
-        home::home_dir()
-            .expect("The home directory could not be determined.")
-            .join(".config")
-            .join("powershell")
-            .join("Microsoft.PowerShell_profile.ps1")
-    }
+    home::home_dir()
+        .expect("The home directory could not be determined.")
+        .join(".config")
+        .join("fish")
+        .join("config.fish")
 }

@@ -1,6 +1,7 @@
 //! Provides support for evaluating shell code.
 
 mod bash;
+mod fish;
 mod powershell;
 mod zsh;
 
@@ -48,6 +49,7 @@ pub trait Setup {
 pub fn get_env() -> Option<Box<dyn Environment>> {
     match env::var(SHELL_NAME).as_deref() {
         Ok("bash") => Some(Box::new(bash::Environment::default())),
+        Ok("fish") => Some(Box::new(fish::Environment::default())),
         Ok("powershell") => Some(Box::new(powershell::Environment::default())),
         Ok("zsh") => Some(Box::new(zsh::Environment::default())),
         _ => None,
@@ -62,6 +64,7 @@ pub fn get_env() -> Option<Box<dyn Environment>> {
 pub fn get_setup(shell: &str, profile: Option<&str>) -> Option<Box<dyn Setup>> {
     match shell {
         "bash" => Some(Box::new(bash::Setup::new(profile))),
+        "fish" => Some(Box::new(fish::Setup::new(profile))),
         "powershell" => Some(Box::new(powershell::Setup::new(profile))),
         "zsh" => Some(Box::new(zsh::Setup::new(profile))),
         _ => None,
