@@ -196,7 +196,7 @@ pub fn set_templates(templates: &Templates) -> app::Result<()> {
 
     let writer = io::BufWriter::new(file);
 
-    if let Err(error) = serde_json::to_writer(writer, templates) {
+    if let Err(error) = serde_json::to_writer_pretty(writer, templates) {
         return Err(app::Error::new(1)
             .with_message(format!("{}", error))
             .with_context(format!(
