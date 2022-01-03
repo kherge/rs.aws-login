@@ -60,20 +60,7 @@ Installation
 
 ### macOS
 
-On more recent versions of macOS, Gatekeeper will block your attempt to run the application because it is not signed with an Apple Developer certificate. I have no intention of paying for the fee any time soon, so you can install the application using Cargo (`cargo install aws-login`), build the application from source (`cargo build --release`), or follow this guide:
-
-1. Run the application.
-2. Click **Cancel** in this dialog.<br/>![Scary Dialog #1](assets/1.png)
-3. Go to **System Preferences**.<br/>![System Preferences](assets/2.png)
-4. Go to **Security & Privacy**.
-5. You should see a message stating that `"aws-login" was blocked from use because it is not from an identified developer.` Click **Allow Anyway**.<br/>![Security & Privacy](assets/3.png)
-5. Run the application again.
-6. Click **Open** in this dialog.<br/>![Scary Dialog #2](assets/4.png)
-7. (Optional) Submit [feedback to Apple] to support code signing for FOSS developers.
-
-You only have to do this once per installation or update.
-
-[feedback to Apple]: https://www.apple.com/feedback/macos.html
+On more recent versions of macOS, Gatekeeper will block your attempt to run the application because it is not signed with an Apple Developer certificate. Please see [this guide](https://github.com/kherge/rs.aws-login/wiki/Running-in-macOS) on how to work around this issue.
 
 Usage
 -----
