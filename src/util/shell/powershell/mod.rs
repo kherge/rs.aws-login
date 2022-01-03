@@ -86,7 +86,9 @@ impl super::Setup for Setup {
                     app::Error::new(error.raw_os_error().unwrap_or(1))
                         .with_message(format!("{}", error))
                 })
-                .with_context(|| "".to_owned())?;
+                .with_context(|| {
+                    "Could not create the directory containing the profile script.".to_owned()
+                })?;
         }
 
         let mut handle = fs::OpenOptions::new()
