@@ -128,7 +128,7 @@ mod test {
 
         errorln!(context, "A test message.").unwrap();
 
-        assert_eq!(context.error_as_string(), "A test message.\n");
+        assert!(context.error_as_string().contains("A test message."));
     }
 
     #[test]

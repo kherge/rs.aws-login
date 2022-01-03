@@ -11,6 +11,8 @@ mod subcommand;
 
 pub use application::Application;
 
+use crossterm::style;
+use std::io::Write;
 use std::{fmt, io, process, sync};
 
 /// A trait for objects that manage the context a subcommand is executed in.
@@ -78,7 +80,13 @@ impl Error {
     /// ```
     pub fn exit(&self) -> ! {
         if self.context.is_empty() || self.message.is_some() {
-            let _ = eprint!("{}", self);
+            let mut stderr = io::stderr();
+            let _ = crossterm::queue!(
+                stderr,
+                style::SetForegroundColor(style::Color::Red),
+                style::Print(format!("{}", self)),
+            );
+            let _ = stderr.flush();
         }
 
         process::exit(self.status);
@@ -274,13 +282,23 @@ macro_rules! errorln {
         let lock = $context.error();
         let error = &mut *lock.lock().unwrap();
 
-        writeln!(error, $message)
+        crossterm::queue!(
+            Box::new(error),
+            crossterm::style::SetForegroundColor(crossterm::style::Color::Red),
+            crossterm::style::Print($message),
+            crossterm::cursor::MoveToNextLine(1),
+        )
     }};
     ($context:expr, $message:tt, $($args:tt)*) => {{
         let lock = $context.error();
         let error = &mut *lock.lock().unwrap();
 
-        writeln!(error, $message, $($args)*)
+        crossterm::queue!(
+            io::stderr(),
+            crossterm::style::SetForegroundColor(crossterm::style::Color::Red),
+            crossterm::style::Print(format!($message, $($args)*)),
+            crossterm::cursor::MoveToNextLine(1),
+        )
     }};
 }
 
@@ -388,7 +406,7 @@ mod test {
 
         assert_eq!(error.message, Some("The command failed.".to_owned()));
         assert_eq!(error.status, 123);
-        assert_eq!(context.error_as_string(), "Test error output.\n");
+        assert!(context.error_as_string().contains("Test error output."));
     }
 
     #[test]
