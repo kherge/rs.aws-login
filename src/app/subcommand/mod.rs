@@ -63,12 +63,12 @@ pub enum Subcommand {
     /// situations where it would simplify the use of the AWS CLI (such as setting AWS_PROFILE).
     Shell(shell::Subcommand),
 
-    /// Logs into an AWS account using SSO.
+    /// Logs into an AWS account using the AWS SSO portal.
     ///
-    /// This subcommand will attempt to log into the AWS account configured for the active AWS CLI
-    /// profile, or prompt you to configure the active profile for SSO authentication. If the AWS
-    /// CLI profile requires configuration, it will be a one time event. Future attempts will use
-    /// the settings already provided.
+    /// This subcommand will attempt to log into an account using the AWS SSO portal configured
+    /// for the active AWS CLI profile, or prompt you to provide any missing settings before
+    /// authentication can continue. The settings will be preserved the next time authentication
+    /// is attempted.
     Sso(sso::Subcommand),
 }
 
