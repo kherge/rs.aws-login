@@ -28,7 +28,7 @@ Table of Contents
 - [Usage](#usage)
     - [Configuring Docker to use ECR](#configuring-docker-to-use-ecr)
     - [Configure `kubectl` to use EKS](#configure-kubectl-to-use-eks)
-    - [Log into an AWS account using SSO](#log-into-an-aws-account-using-sso)
+    - [Log into an AWS account using SSO portal](#log-into-an-aws-account-using-sso-portal)
     - [Setting up and activating AWS CLI profiles](#setting-up-and-activating-aws-cli-profiles)
         - [Working with profile templates](#working-with-profile-templates)
     - [Downloading and installing profile templates](#downloading-and-installing-profile-templates)
@@ -99,11 +99,11 @@ This subcommand will configure Docker to use the Elastic Container Registry in t
 
 This subcommand will prompt you to choose an EKS cluster from a list found in the AWS account for your active AWS CLI profile. Once a selection is made, the configuration for `kubectl` is updated to support connecting to that EKS cluster. Remember to log in before attempting to do so, fresh credentials may be required.
 
-### Log into an AWS account using SSO
+### Log into an AWS account using AWS SSO portal
 
     aws-login sso
 
-This subcommand will attempt to log you into the AWS account for your active AWS CLI profile. If the SSO configuration for the profile is incomplete, you will be prompted to provide additional configuration setting values before SSO authentication can proceed.
+This subcommand will use the AWS SSO portal settings in your active AWS CLI profile for authentication. If the required settings are missing, you will be prompted to provide them before authentication can proceed.
 
 ### Setting up and activating AWS CLI profiles
 
