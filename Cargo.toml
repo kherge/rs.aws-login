@@ -13,7 +13,7 @@ keywords = ["aws", "login"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-clap = "^3.0"
+clap = { version = "^3.0", features = ["derive"] }
 crossterm = "^0.22"
 home = "^0.5"
 lazy_static = "^1.4"
