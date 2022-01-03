@@ -85,6 +85,7 @@ impl Error {
                 stderr,
                 style::SetForegroundColor(style::Color::Red),
                 style::Print(format!("{}", self)),
+                style::ResetColor
             );
             let _ = stderr.flush();
         }
@@ -286,6 +287,7 @@ macro_rules! errorln {
             Box::new(error),
             crossterm::style::SetForegroundColor(crossterm::style::Color::Red),
             crossterm::style::Print($message),
+            crossterm::style::ResetColor,
             crossterm::cursor::MoveToNextLine(1),
         )
     }};
@@ -297,6 +299,7 @@ macro_rules! errorln {
             io::stderr(),
             crossterm::style::SetForegroundColor(crossterm::style::Color::Red),
             crossterm::style::Print(format!($message, $($args)*)),
+            crossterm::style::ResetColor,
             crossterm::cursor::MoveToNextLine(1),
         )
     }};
