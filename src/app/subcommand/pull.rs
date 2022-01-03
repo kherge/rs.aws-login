@@ -79,10 +79,13 @@ impl app::Execute for Subcommand {
             }
         };
 
+        let remote = profile::parse_templates(json.as_bytes())
+            .with_context(|| "Could not parse the downloaded templates.".to_owned())?;
+
         let mut templates = profile::get_templates()?;
 
         if templates.is_empty() {
-            profile::set_templates(&templates)
+            profile::set_templates(&remote)
                 .with_context(|| "Could not save the downloaded templates.".to_owned())?;
         } else {
             let resolve = match &self.resolve {
@@ -94,8 +97,6 @@ impl app::Execute for Subcommand {
                     term::select(prompt, choices)?
                 }
             };
-
-            let remote = profile::parse_templates(json.as_bytes())?;
 
             match &resolve {
                 Resolve::Merge => {
