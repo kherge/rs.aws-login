@@ -14,6 +14,10 @@
 # Except the README file.
 !/README.md
 
+# Except the README assets.
+!/assets/
+!/assets/**
+
 # Except the manifest.
 !/Cargo.lock
 !/Cargo.toml
