@@ -12,7 +12,7 @@ const REQUIRED_SETTINGS: &[&str] = &[
 ];
 
 /// The options for the subcommand.
-#[derive(structopt::StructOpt)]
+#[derive(clap::Parser)]
 pub struct Subcommand {}
 
 impl app::Execute for Subcommand {

@@ -1,9 +1,15 @@
 //! A command line utility to simplify logging into AWS accounts and services.
+//!
+//! This utility serves as a wrapper around the AWS CLI to extend functionality that it already
+//! provides. The goal is to merge together disparate but related commands into single subcommands
+//! that are easier to remember and use. The utility also leverages templating for profiles that
+//! may be shared with colleagues of the same organization, providing more consistent profile
+//! naming conventions and configuration settings.
 
 mod app;
 mod util;
 
-use structopt::StructOpt;
+use clap::Parser;
 
 /// Primary entrypoint to the command line interface.
 ///
@@ -14,7 +20,7 @@ use structopt::StructOpt;
 /// `app::Application` instance could not be created, a clean up operation is still performed
 /// before exiting with the `clap::Error` returned by [`structopt::StructOpt::from_args_safe`].
 fn main() {
-    let mut app = app::Application::from_args_safe();
+    let mut app = app::Application::try_parse();
 
     if let Ok(app) = app.as_mut() {
         if let Err(error) = app.execute() {

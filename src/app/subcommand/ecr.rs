@@ -5,7 +5,7 @@ use crate::util::run;
 use crate::{app, err};
 
 /// The options for the subcommand.
-#[derive(structopt::StructOpt)]
+#[derive(clap::Parser)]
 pub struct Subcommand {}
 
 impl app::Execute for Subcommand {

@@ -3,10 +3,10 @@
 use crate::{app, errorln, outputln};
 
 /// The options for the subcommand.
-#[derive(structopt::StructOpt)]
+#[derive(clap::Parser)]
 pub struct Subcommand {
     /// Causes the command to produce an error.
-    #[structopt(short, long)]
+    #[clap(short, long)]
     error: bool,
 }
 
