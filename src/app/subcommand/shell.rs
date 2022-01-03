@@ -27,7 +27,7 @@ impl str::FromStr for Action {
 }
 
 /// The options for the subcommand.
-#[derive(structopt::StructOpt)]
+#[derive(clap::Parser)]
 pub struct Subcommand {
     /// What the subcommand should do with the shell environment.
     ///
@@ -37,7 +37,7 @@ pub struct Subcommand {
     action: Action,
 
     /// The path to the shell profile's startup script (e.g. ~/.bashrc).
-    #[structopt(short, long)]
+    #[clap(short, long)]
     init: Option<String>,
 
     /// The name of the shell used to manage the environment (e.g. bash).
@@ -47,7 +47,7 @@ pub struct Subcommand {
     /// open a ticket to request support for additional shells.
     ///
     /// The supported shells are: bash, zsh
-    #[structopt(short, long)]
+    #[clap(short, long)]
     shell: String,
 }
 

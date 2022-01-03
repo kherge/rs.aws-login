@@ -10,14 +10,8 @@ mod sso;
 
 use crate::app;
 
-/// A command line utility to simplify logging into AWS accounts and services.
-///
-/// This utility serves as a wrapper around the AWS CLI to extend functionality that it already
-/// provides. The goal is to merge together disparate but related commands into single subcommands
-/// that are easier to remember and use. The utility also leverages templating for profiles that
-/// may be shared with colleagues of the same organization, providing more consistent profile
-/// naming conventions and configuration settings.
-#[derive(structopt::StructOpt)]
+/// The subcommands available to the user.
+#[derive(clap::Parser)]
 pub enum Subcommand {
     /// Prints debugging messages for the application.
     #[cfg(debug_assertions)]
@@ -43,7 +37,7 @@ pub enum Subcommand {
     /// has a corresponding template, the AWS CLI profile will be created using the template. If
     /// the AWS CLI profile exists, or was created, it will be made an active AWS CLI profile.
     /// This activation removes the need to use the --profile option for every AWS CLI execution.
-    #[structopt(name = "use")]
+    #[clap(name = "use")]
     Profile(profile::Subcommand),
 
     /// Downloads profile templates from a URL.

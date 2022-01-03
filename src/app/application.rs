@@ -2,22 +2,21 @@
 
 use crate::app::{subcommand, Execute};
 use std::{io, sync};
-use structopt::clap;
 
 /// Manages the global command line options.
-#[derive(structopt::StructOpt)]
-#[structopt(global_setting(clap::AppSettings::ColoredHelp))]
+#[derive(clap::Parser)]
+#[clap(about, version, author)]
 pub struct Application {
     /// Overrides the active AWS CLI profile.
-    #[structopt(long, global = true)]
+    #[clap(long, global = true)]
     profile: Option<String>,
 
     /// Overrides the default AWS region.
-    #[structopt(long, global = true)]
+    #[clap(long, global = true)]
     region: Option<String>,
 
     /// The subcommand to execute.
-    #[structopt(subcommand)]
+    #[clap(subcommand)]
     subcommand: subcommand::Subcommand,
 }
 

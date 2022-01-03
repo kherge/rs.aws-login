@@ -5,7 +5,7 @@ use crate::util::{run, term};
 use crate::{app, err};
 
 /// The options for the subcommand.
-#[derive(structopt::StructOpt)]
+#[derive(clap::Parser)]
 pub struct Subcommand {
     /// The name of the desired cluster.
     cluster: Option<String>,

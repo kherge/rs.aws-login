@@ -44,7 +44,7 @@ impl str::FromStr for Resolve {
 }
 
 /// The options for the subcommand.
-#[derive(structopt::StructOpt)]
+#[derive(clap::Parser)]
 pub struct Subcommand {
     /// How to handle the existing local profile templates.
     ///
@@ -54,7 +54,7 @@ pub struct Subcommand {
     /// in the local file are preserved unless a remote one of the same name is found. If
     /// "replace" is chosen, all of the local profiles will be removed before being replaced
     /// by the remote templates.
-    #[structopt(short, long)]
+    #[clap(short, long)]
     resolve: Option<Resolve>,
 
     /// The URL to download the profile templates from.
