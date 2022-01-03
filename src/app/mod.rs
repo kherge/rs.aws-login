@@ -11,6 +11,8 @@ mod subcommand;
 
 pub use application::Application;
 
+use crossterm::style;
+use std::io::Write;
 use std::{fmt, io, process, sync};
 
 /// A trait for objects that manage the context a subcommand is executed in.
@@ -78,7 +80,13 @@ impl Error {
     /// ```
     pub fn exit(&self) -> ! {
         if self.context.is_empty() || self.message.is_some() {
-            let _ = eprint!("{}", self);
+            let mut stderr = io::stderr();
+            let _ = crossterm::queue!(
+                stderr,
+                style::SetForegroundColor(style::Color::Red),
+                style::Print(format!("{}", self)),
+            );
+            let _ = stderr.flush();
         }
 
         process::exit(self.status);
