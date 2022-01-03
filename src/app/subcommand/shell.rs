@@ -46,7 +46,7 @@ pub struct Subcommand {
     /// provide shell specific support for the integration (e.g. Bash vs PowerShell). Please
     /// open a ticket to request support for additional shells.
     ///
-    /// The supported shells are: bash, zsh
+    /// The supported shells are: bash, powershell, zsh
     #[clap(short, long)]
     shell: String,
 }
