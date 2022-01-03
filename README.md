@@ -25,7 +25,6 @@ Table of Contents
     - [Development](#development)
 - [Installation](#installation)
     - [macOS](#macos)
-    - [Integration into Shell](#integration-into-shell)
 - [Usage](#usage)
     - [Configuring Docker to use ECR](#configuring-docker-to-use-ecr)
     - [Configure `kubectl` to use EKS](#configure-kubectl-to-use-eks)
