@@ -282,13 +282,23 @@ macro_rules! errorln {
         let lock = $context.error();
         let error = &mut *lock.lock().unwrap();
 
-        writeln!(error, $message)
+        crossterm::queue!(
+            Box::new(error),
+            crossterm::style::SetForegroundColor(crossterm::style::Color::Red),
+            crossterm::style::Print($message),
+            crossterm::cursor::MoveToNextLine(1),
+        )
     }};
     ($context:expr, $message:tt, $($args:tt)*) => {{
         let lock = $context.error();
         let error = &mut *lock.lock().unwrap();
 
-        writeln!(error, $message, $($args)*)
+        crossterm::queue!(
+            io::stderr(),
+            crossterm::style::SetForegroundColor(crossterm::style::Color::Red),
+            crossterm::style::Print(format!($message, $($args)*)),
+            crossterm::cursor::MoveToNextLine(1),
+        )
     }};
 }
 
@@ -396,7 +406,7 @@ mod test {
 
         assert_eq!(error.message, Some("The command failed.".to_owned()));
         assert_eq!(error.status, 123);
-        assert_eq!(context.error_as_string(), "Test error output.\n");
+        assert!(context.error_as_string().contains("Test error output."));
     }
 
     #[test]
