@@ -28,7 +28,7 @@ Table of Contents
 - [Usage](#usage)
     - [Configuring Docker to use ECR](#configuring-docker-to-use-ecr)
     - [Configure `kubectl` to use EKS](#configure-kubectl-to-use-eks)
-    - [Log into an AWS account using SSO portal](#log-into-an-aws-account-using-sso-portal)
+    - [Log into an AWS account using SSO portal](#log-into-an-aws-account-using-aws-sso-portal)
     - [Setting up and activating AWS CLI profiles](#setting-up-and-activating-aws-cli-profiles)
         - [Working with profile templates](#working-with-profile-templates)
     - [Downloading and installing profile templates](#downloading-and-installing-profile-templates)
