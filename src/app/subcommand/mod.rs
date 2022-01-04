@@ -5,6 +5,7 @@ mod ecr;
 mod eks;
 mod profile;
 mod pull;
+mod rds;
 mod shell;
 mod sso;
 
@@ -49,6 +50,14 @@ pub enum Subcommand {
     /// existing templates of the same name.
     Pull(pull::Subcommand),
 
+    /// Generates an authentication token to access RDS Proxy via IAM.
+    ///
+    /// This subcommand will prompt you to select one proxy out of any that are found in RDS Proxy
+    /// and whose status are "available". Once a proxy is selected, a new database authentication
+    /// token will be generated. It is important to note that a token will be successfully generated
+    /// even if you do not have the permissions necessary to access the proxy.
+    Rds(rds::Subcommand),
+
     /// Integrates the application into the shell environment.
     ///
     /// This subcommand is capable of modifying the shell profile to inject code required to
@@ -73,6 +82,7 @@ impl app::Execute for Subcommand {
             Self::Eks(cmd) => cmd.execute(context),
             Self::Profile(cmd) => cmd.execute(context),
             Self::Pull(cmd) => cmd.execute(context),
+            Self::Rds(cmd) => cmd.execute(context),
             Self::Shell(cmd) => cmd.execute(context),
             Self::Sso(cmd) => cmd.execute(context),
 
