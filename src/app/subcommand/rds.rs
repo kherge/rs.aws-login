@@ -64,7 +64,7 @@ impl app::Execute for Subcommand {
             .arg("--hostname")
             .arg(&proxy.endpoint)
             .arg("--port")
-            .arg(&self.port.as_deref().unwrap_or("5432"))
+            .arg(self.port.as_deref().unwrap_or("5432"))
             .arg("--username")
             .arg(&self.username)
             .pass_through(context)?;
