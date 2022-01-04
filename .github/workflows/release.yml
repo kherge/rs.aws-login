@@ -50,6 +50,19 @@ jobs:
         with:
           command: build
           args: --release --locked
+      - if: ${{ matrix.os == "macos-latest" }}
+        name: Import Signing Certificate
+        uses: apple-actions/import-codesign-certs@v1
+        with:
+          p12-file-base64: ${{ secrets.SIGNING_CERTIFICATE }}
+          p12-password: ${{ secrets.SIGNING_PASSWORD }}
+      - if: ${{ matrix.os == "macos-latest" }}
+        name: Sign Binary for macOS
+        env:
+          BINARY_NAME: ${{ matrix.name }}
+          SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
+        run: |
+          /usr/bin/codesign --force -s $SIGNING_IDENTITY target/release/$BINARY_NAME -v
       - name: Package
         uses: thedoctor0/zip-release@0.6.0
         with:
