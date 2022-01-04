@@ -86,6 +86,18 @@ This subcommand will configure Docker to use the Elastic Container Registry in t
 
 This subcommand will prompt you to choose an EKS cluster from a list found in the AWS account for your active AWS CLI profile. Once a selection is made, the configuration for `kubectl` is updated to support connecting to that EKS cluster. Remember to log in before attempting to do so, fresh credentials may be required.
 
+### Log into an RDS Proxy using IAM
+
+    aws-login rds $USERNAME
+
+This subcommand will prompt you to choose an RDS Proxy from a list found in the AWS account for your active AWS CLI profile. Once a selection is made, the database authentication token will be generated for you to use in your preferred database client.
+
+> It is important to note that generating a token will almost always succeed, even if you do not have permission to access the RDS Proxy endpoint. If authentication fails, you will want to check a few things:
+>
+> 1. Make sure your TLS settings match.
+> 2. Make sure you are using the correct AWS CLI profile.
+> 3. Make sure your role has the IAM `rds-db:connect` permission.
+
 ### Log into an AWS account using AWS SSO portal
 
     aws-login sso
