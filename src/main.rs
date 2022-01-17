@@ -9,6 +9,7 @@
 mod app;
 mod util;
 
+use carli::command::Main;
 use clap::Parser;
 
 /// Primary entrypoint to the command line interface.
