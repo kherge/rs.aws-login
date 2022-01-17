@@ -1,6 +1,7 @@
 //! Provides the application subcommands to be executed.
 
-mod debug;
+pub mod debug;
+
 mod ecr;
 mod eks;
 mod profile;

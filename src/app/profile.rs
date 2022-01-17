@@ -1,8 +1,8 @@
 //! Manages loading and parsing of profile templates.
 
-use crate::app::ErrorContext;
 use crate::util::config;
-use crate::{app, err};
+use carli::err;
+use carli::error::{Context, Error, Result};
 use std::{collections, fmt, fs, io, path};
 
 lazy_static::lazy_static! {
@@ -67,7 +67,7 @@ impl Template {
     /// let template = templates.get("example").unwrap();
     /// let profile = template.to_profile(&templates);
     /// ```
-    fn to_profile(&self, name: &str, templates: &Templates) -> app::Result<Profile> {
+    fn to_profile(&self, name: &str, templates: &Templates) -> Result<Profile> {
         let mut extends = &self.extends;
         let mut settings = collections::HashMap::new();
 
@@ -75,7 +75,7 @@ impl Template {
             settings.insert(
                 key.clone(),
                 convert_value(value)
-                    .with_context(|| format!("Could not convert the value of, {}.", key))?,
+                    .context(|| format!("Could not convert the value of, {}.", key))?,
             );
         }
 
@@ -85,7 +85,7 @@ impl Template {
                     if !settings.contains_key(key) {
                         settings.insert(
                             key.clone(),
-                            convert_value(value).with_context(|| {
+                            convert_value(value).context(|| {
                                 format!(
                                     "Could not convert the value of, {}, in the profile template, {}.",
                                     key,
@@ -117,7 +117,7 @@ impl Template {
 pub type Templates = collections::HashMap<String, Template>;
 
 /// Converts a [`serde_json::Value`] into a [`String`].
-fn convert_value(value: &serde_json::Value) -> app::Result<String> {
+fn convert_value(value: &serde_json::Value) -> Result<String> {
     use serde_json::Value;
 
     match value {
@@ -130,7 +130,7 @@ fn convert_value(value: &serde_json::Value) -> app::Result<String> {
 }
 
 /// Processes profile templates into AWS CLI profiles and returns them.
-pub fn get_profiles() -> app::Result<Profiles> {
+pub fn get_profiles() -> Result<Profiles> {
     let mut profiles = Profiles::new();
     let templates = get_templates()?;
 
@@ -144,7 +144,7 @@ pub fn get_profiles() -> app::Result<Profiles> {
 }
 
 /// Reads and parses profile templates from the local file.
-pub fn get_templates() -> app::Result<Templates> {
+pub fn get_templates() -> Result<Templates> {
     if !TEMPLATES_FILE.exists() {
         return Ok(Templates::new());
     }
@@ -153,7 +153,7 @@ pub fn get_templates() -> app::Result<Templates> {
 }
 
 /// Parses profile templates from the given stream reader.
-pub fn parse_templates(reader: impl io::Read) -> app::Result<Templates> {
+pub fn parse_templates(reader: impl io::Read) -> Result<Templates> {
     match serde_json::from_reader(reader) {
         Ok(templates) => Ok(templates),
         Err(error) => err!(1, "{}", error),
@@ -161,11 +161,11 @@ pub fn parse_templates(reader: impl io::Read) -> app::Result<Templates> {
 }
 
 /// Reads and parses profile templates from a JSON encoded file.
-fn read_templates(path: &path::Path) -> app::Result<Templates> {
+fn read_templates(path: &path::Path) -> Result<Templates> {
     let file = match fs::File::open(path) {
         Ok(file) => file,
         Err(error) => {
-            return Err(app::Error::from(error).with_context(format!(
+            return Err(Error::from(error).context(format!(
                 "Could not read the profile templates file: {}",
                 path.display()
             )))
@@ -174,7 +174,7 @@ fn read_templates(path: &path::Path) -> app::Result<Templates> {
 
     let reader = io::BufReader::new(file);
 
-    parse_templates(reader).with_context(|| {
+    parse_templates(reader).context(|| {
         format!(
             "Could not parse the profile templates file: {}",
             path.display()
@@ -183,11 +183,11 @@ fn read_templates(path: &path::Path) -> app::Result<Templates> {
 }
 
 /// Saves the templates to the local file.
-pub fn set_templates(templates: &Templates) -> app::Result<()> {
+pub fn set_templates(templates: &Templates) -> Result<()> {
     let file = match fs::File::create(&*TEMPLATES_FILE) {
         Ok(file) => file,
         Err(error) => {
-            return Err(app::Error::from(error).with_context(format!(
+            return Err(Error::from(error).context(format!(
                 "Could not write to the profile templates file: {}",
                 TEMPLATES_FILE.display()
             )))
@@ -197,12 +197,10 @@ pub fn set_templates(templates: &Templates) -> app::Result<()> {
     let writer = io::BufWriter::new(file);
 
     if let Err(error) = serde_json::to_writer_pretty(writer, templates) {
-        return Err(app::Error::new(1)
-            .with_message(format!("{}", error))
-            .with_context(format!(
-                "Could not serialize the templates to the local file: {}",
-                TEMPLATES_FILE.display()
-            )));
+        return Err(Error::new(1).message(format!("{}", error)).context(format!(
+            "Could not serialize the templates to the local file: {}",
+            TEMPLATES_FILE.display()
+        )));
     }
 
     Ok(())

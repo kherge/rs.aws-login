@@ -11,27 +11,54 @@ use std::{cell, io};
 pub struct Application {
     /// The error output stream.
     #[clap(skip = cell::RefCell::new(io::stderr().into()))]
-    error: cell::RefCell<Stream>,
+    pub(crate) error: cell::RefCell<Stream>,
 
     /// The input stream.
     #[clap(skip = cell::RefCell::new(io::stdin().into()))]
-    input: cell::RefCell<Stream>,
+    pub(crate) input: cell::RefCell<Stream>,
 
     /// The error output stream.
     #[clap(skip = cell::RefCell::new(io::stdout().into()))]
-    output: cell::RefCell<Stream>,
+    pub(crate) output: cell::RefCell<Stream>,
 
     /// Overrides the active AWS CLI profile.
     #[clap(long, global = true)]
-    profile: Option<String>,
+    pub(crate) profile: Option<String>,
 
     /// Overrides the default AWS region.
     #[clap(long, global = true)]
-    region: Option<String>,
+    pub(crate) region: Option<String>,
 
     /// The subcommand to execute.
     #[clap(subcommand)]
-    subcommand: Subcommand,
+    pub(crate) subcommand: Subcommand,
+}
+
+impl Application {
+    /// Returns the name of the AWS CLI profile.
+    pub fn profile(&self) -> Option<&str> {
+        self.profile.as_deref()
+    }
+
+    /// Returns the name of the AWS region.
+    pub fn region(&self) -> Option<&str> {
+        self.region.as_deref()
+    }
+
+    /// Creates a new test instance of the application.
+    #[cfg(any(doc, test))]
+    pub fn test() -> Self {
+        Self {
+            error: cell::RefCell::new(Vec::new().into()),
+            input: cell::RefCell::new(Vec::new().into()),
+            output: cell::RefCell::new(Vec::new().into()),
+            profile: None,
+            region: None,
+            subcommand: Subcommand::Debug(crate::app::subcommand::debug::Subcommand {
+                error: false,
+            }),
+        }
+    }
 }
 
 impl Main for Application {

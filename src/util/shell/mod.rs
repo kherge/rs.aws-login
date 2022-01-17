@@ -5,7 +5,7 @@ mod fish;
 mod powershell;
 mod zsh;
 
-use crate::app;
+use carli::error::Result;
 use std::env;
 
 /// The name of the environment variable used to specify the shell name.
@@ -26,7 +26,7 @@ pub trait Environment {
     ///
     /// env.set_var("EXAMPLE", "Hello, world!")?;
     /// ```
-    fn set_var(&mut self, name: &str, value: &str) -> app::Result<()>;
+    fn set_var(&mut self, name: &str, value: &str) -> Result<()>;
 }
 
 /// Implemented by types that integrate the application into the current shell environment.
@@ -35,10 +35,10 @@ pub trait Setup {
     fn generate_script(&self) -> String;
 
     /// Modifies the profile's startup script to integration the application.
-    fn install(&self) -> app::Result<()>;
+    fn install(&self) -> Result<()>;
 
     /// Checks if the integration script is already installed in the startup script.
-    fn is_installed(&self) -> app::Result<bool>;
+    fn is_installed(&self) -> Result<bool>;
 }
 
 /// Returns the [`Environment`] implementation best suited for the current shell environment.

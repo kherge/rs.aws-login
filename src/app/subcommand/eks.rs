@@ -1,8 +1,10 @@
 //! A subcommand used to configure `kubectl` to use AWS Elastic Kubernetes Service.
 
-use crate::app::ErrorContext;
-use crate::util::{run, term};
-use crate::{app, err};
+use crate::app::Application;
+use crate::util::run::Run;
+use crate::util::term::select;
+use carli::error::Context;
+use carli::prelude::cmd::*;
 
 /// The options for the subcommand.
 #[derive(clap::Parser)]
@@ -11,8 +13,8 @@ pub struct Subcommand {
     cluster: Option<String>,
 }
 
-impl app::Execute for Subcommand {
-    fn execute(&self, context: &mut impl app::Context) -> app::Result<()> {
+impl Execute<Application> for Subcommand {
+    fn execute(&self, context: &Application) -> Result<()> {
         let clusters = get_clusters(context)?;
         let cluster = match self.cluster.as_ref() {
             Some(cluster) => {
@@ -22,26 +24,26 @@ impl app::Execute for Subcommand {
 
                 cluster
             }
-            None => term::select("Please select an EKS cluster to setup:", &clusters)
-                .with_context(|| "Unable to select an EKS cluster.".to_owned())?,
+            None => select("Please select an EKS cluster to setup:", &clusters)
+                .context(|| "Unable to select an EKS cluster.".to_owned())?,
         };
 
-        run::Run::new("aws")
+        Run::new("aws")
             .with_aws_options(context)
             .arg("eks")
             .arg("update-kubeconfig")
             .arg("--name")
             .arg(cluster)
             .pass_through(context)
-            .with_context(|| "Could not get the AWS CLI to configure kubectl.".to_owned())?;
+            .context(|| "Could not get the AWS CLI to configure kubectl.".to_owned())?;
 
         Ok(())
     }
 }
 
 /// Retrieves the list of clusters available in EKS for the active AWS CLI profile.
-fn get_clusters(context: &impl app::Context) -> app::Result<Vec<String>> {
-    let clusters = run::Run::new("aws")
+fn get_clusters(context: &Application) -> Result<Vec<String>> {
+    let clusters = Run::new("aws")
         .with_aws_options(context)
         .arg("eks")
         .arg("list-clusters")
@@ -50,7 +52,7 @@ fn get_clusters(context: &impl app::Context) -> app::Result<Vec<String>> {
         .arg("--output")
         .arg("text")
         .output()
-        .with_context(|| {
+        .context(|| {
             "The list of available EKS clusters could not be retrieved from the AWS CLI.".to_owned()
         })?
         .split_whitespace()

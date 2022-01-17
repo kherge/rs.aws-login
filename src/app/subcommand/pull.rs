@@ -1,7 +1,9 @@
 //! A subcommand used to download profile templates from a URL.
 
-use crate::app::{self, profile, ErrorContext};
+use crate::app::{profile, Application};
 use crate::util::term;
+use carli::error::{Context, Error};
+use carli::prelude::cmd::*;
 use std::{fmt, str};
 
 /// The options the user has to resolve multiple profile templates files.
@@ -61,32 +63,32 @@ pub struct Subcommand {
     url: String,
 }
 
-impl app::Execute for Subcommand {
-    fn execute(&self, _: &mut impl app::Context) -> app::Result<()> {
+impl Execute<Application> for Subcommand {
+    fn execute(&self, _: &Application) -> Result<()> {
         let json = match reqwest::blocking::get(&self.url) {
             Ok(response) => match response.text() {
                 Ok(text) => text,
                 Err(error) => {
-                    return Err(app::Error::new(1)
-                        .with_message(format!("{}", error))
-                        .with_context("The download response could not be read.".to_string()))
+                    return Err(Error::new(1)
+                        .message(format!("{}", error))
+                        .context("The download response could not be read.".to_string()))
                 }
             },
             Err(error) => {
-                return Err(app::Error::new(1)
-                    .with_message(format!("{}", error))
-                    .with_context("The templates could not be downloaded.".to_string()))
+                return Err(Error::new(1)
+                    .message(format!("{}", error))
+                    .context("The templates could not be downloaded.".to_string()))
             }
         };
 
         let remote = profile::parse_templates(json.as_bytes())
-            .with_context(|| "Could not parse the downloaded templates.".to_owned())?;
+            .context(|| "Could not parse the downloaded templates.".to_owned())?;
 
         let mut templates = profile::get_templates()?;
 
         if templates.is_empty() {
             profile::set_templates(&remote)
-                .with_context(|| "Could not save the downloaded templates.".to_owned())?;
+                .context(|| "Could not save the downloaded templates.".to_owned())?;
         } else {
             let resolve = match &self.resolve {
                 Some(resolve) => resolve,
@@ -105,10 +107,10 @@ impl app::Execute for Subcommand {
                     }
 
                     profile::set_templates(&templates)
-                        .with_context(|| "Could not update local templates.".to_owned())?;
+                        .context(|| "Could not update local templates.".to_owned())?;
                 }
                 Resolve::Replace => profile::set_templates(&remote)
-                    .with_context(|| "Could not save the downloaded templates.".to_owned())?,
+                    .context(|| "Could not save the downloaded templates.".to_owned())?,
                 _ => {
                     // Do nothing.
                 }

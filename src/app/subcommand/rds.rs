@@ -1,8 +1,10 @@
 //! A subcommand used to generate a token for accessing RDS Proxy using IAM.
 
-use crate::app::ErrorContext;
+use crate::app::Application;
+use crate::errorln;
 use crate::util::{run, term};
-use crate::{app, err, errorln};
+use carli::error::Context;
+use carli::prelude::cmd::*;
 use std::fmt;
 
 /// Represents an RDS Proxy that is available.
@@ -37,8 +39,8 @@ pub struct Subcommand {
     username: String,
 }
 
-impl app::Execute for Subcommand {
-    fn execute(&self, context: &mut impl app::Context) -> app::Result<()> {
+impl Execute<Application> for Subcommand {
+    fn execute(&self, context: &Application) -> Result<()> {
         let proxies = get_proxies(context)?;
         let proxy = term::select("Please select an RDS Proxy:", &proxies)?;
 
@@ -74,7 +76,7 @@ impl app::Execute for Subcommand {
 }
 
 /// Retrieves a list of the available RDS Proxies.
-fn get_proxies(context: &impl app::Context) -> app::Result<Vec<Proxy>> {
+fn get_proxies(context: &Application) -> Result<Vec<Proxy>> {
     let pairs = run::Run::new("aws")
         .with_aws_options(context)
         .arg("rds")
@@ -85,7 +87,7 @@ fn get_proxies(context: &impl app::Context) -> app::Result<Vec<Proxy>> {
         .arg("text")
         .output()
         .map(|output| output.trim().to_owned())
-        .with_context(|| "Could not get RDS Proxy host names from AWS CLI.".to_owned())?
+        .context(|| "Could not get RDS Proxy host names from AWS CLI.".to_owned())?
         .split('\n')
         .map(|s| s.to_owned())
         .collect::<Vec<String>>();

@@ -1,15 +1,17 @@
 //! A subcommand used to create and/or select an AWS CLI profile.
 
-use crate::app::{self, profile, ErrorContext};
+use crate::app::{profile, Application};
+use crate::errorln;
 use crate::util::{run, shell, term};
-use crate::{err, errorln};
+use carli::error::Context;
+use carli::prelude::cmd::*;
 
 /// The options for the subcommand.
 #[derive(clap::Parser)]
 pub struct Subcommand {}
 
-impl app::Execute for Subcommand {
-    fn execute(&self, context: &mut impl app::Context) -> app::Result<()> {
+impl Execute<Application> for Subcommand {
+    fn execute(&self, context: &Application) -> Result<()> {
         let existing = get_existing_profiles(context)?;
         let profiles = profile::get_profiles()?;
         let profile = match context.profile() {
@@ -53,7 +55,7 @@ impl app::Execute for Subcommand {
 }
 
 /// Creates the AWS CLI profile.
-fn create_profile(context: &mut impl app::Context, profile: &profile::Profile) -> app::Result<()> {
+fn create_profile(context: &Application, profile: &profile::Profile) -> Result<()> {
     for (key, value) in profile.settings() {
         run::Run::new("aws")
             .arg("--profile")
@@ -63,20 +65,20 @@ fn create_profile(context: &mut impl app::Context, profile: &profile::Profile) -
             .arg(key)
             .arg(value)
             .pass_through(context)
-            .with_context(|| format!("Could not set the profile setting, {}.", key))?;
+            .context(|| format!("Could not set the profile setting, {}.", key))?;
     }
 
     Ok(())
 }
 
 /// Returns a list of existing AWS CLI profiles.
-fn get_existing_profiles(context: &impl app::Context) -> app::Result<Vec<String>> {
+fn get_existing_profiles(context: &Application) -> Result<Vec<String>> {
     let profiles = run::Run::new("aws")
         .with_aws_options(context)
         .arg("configure")
         .arg("list-profiles")
         .output()
-        .with_context(|| "Could not get a list of existing AWS CLI profiles.".to_owned())?
+        .context(|| "Could not get a list of existing AWS CLI profiles.".to_owned())?
         .split_whitespace()
         .map(|s| s.to_owned())
         .collect();

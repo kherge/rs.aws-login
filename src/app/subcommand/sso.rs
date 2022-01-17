@@ -1,7 +1,9 @@
 //! A subcommand used to authenticate into an AWS account using SSO.
 
-use crate::app::{self, ErrorContext};
+use crate::app::Application;
 use crate::util::run;
+use carli::error::Context;
+use carli::prelude::cmd::*;
 
 /// The profile configuration settings required for SSO.
 const REQUIRED_SETTINGS: &[&str] = &[
@@ -15,22 +17,22 @@ const REQUIRED_SETTINGS: &[&str] = &[
 #[derive(clap::Parser)]
 pub struct Subcommand {}
 
-impl app::Execute for Subcommand {
-    fn execute(&self, context: &mut impl app::Context) -> app::Result<()> {
+impl Execute<Application> for Subcommand {
+    fn execute(&self, context: &Application) -> Result<()> {
         if is_configured(context)? {
             run::Run::new("aws")
                 .with_aws_options(context)
                 .arg("sso")
                 .arg("login")
                 .pass_through(context)
-                .with_context(|| "Could not log in via SSO.".to_owned())?;
+                .context(|| "Could not log in via SSO.".to_owned())?;
         } else {
             run::Run::new("aws")
                 .with_aws_options(context)
                 .arg("configure")
                 .arg("sso")
                 .pass_through(context)
-                .with_context(|| "Could not configure AWS CLI profile for SSO.".to_owned())?;
+                .context(|| "Could not configure AWS CLI profile for SSO.".to_owned())?;
         }
 
         Ok(())
@@ -38,7 +40,7 @@ impl app::Execute for Subcommand {
 }
 
 /// Checks if the active profile is fully configured for SSO.
-fn is_configured(context: &impl app::Context) -> app::Result<bool> {
+fn is_configured(context: &Application) -> Result<bool> {
     let mut has = 0;
 
     for key in REQUIRED_SETTINGS {

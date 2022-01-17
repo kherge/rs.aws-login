@@ -1,8 +1,10 @@
 //! A subcommand used to used to integrate the application with the user's shell.
 
-use crate::app::ErrorContext;
+use crate::app::Application;
+use crate::outputln;
 use crate::util::shell;
-use crate::{app, outputln};
+use carli::error::{Context, Error};
+use carli::prelude::cmd::*;
 use std::str;
 
 /// The actions supported by the subcommand.
@@ -51,18 +53,17 @@ pub struct Subcommand {
     shell: String,
 }
 
-impl app::Execute for Subcommand {
-    fn execute(&self, context: &mut impl app::Context) -> app::Result<()> {
-        let env = shell::get_setup(&self.shell, self.init.as_deref()).ok_or_else(|| {
-            app::Error::new(1).with_message("The shell is not supported.".to_owned())
-        })?;
+impl Execute<Application> for Subcommand {
+    fn execute(&self, context: &Application) -> Result<()> {
+        let env = shell::get_setup(&self.shell, self.init.as_deref())
+            .ok_or_else(|| Error::new(1).message("The shell is not supported.".to_owned()))?;
 
         match &self.action {
             Action::Init => outputln!(context, "{}", env.generate_script())
-                .map_err(app::Error::from)
-                .with_context(|| "Could not write initialization script to output.".to_owned())?,
+                .map_err(Error::from)
+                .context(|| "Could not write initialization script to output.".to_owned())?,
             Action::Install => {
-                let installed = env.is_installed().with_context(|| {
+                let installed = env.is_installed().context(|| {
                     "Could not check if the integration is already set up.".to_owned()
                 })?;
 
@@ -70,7 +71,7 @@ impl app::Execute for Subcommand {
                     outputln!(context, "The integration is already installed.")?;
                 } else {
                     env.install()
-                        .with_context(|| "Could not install integration script.".to_owned())?
+                        .context(|| "Could not install integration script.".to_owned())?
                 }
             }
         }

@@ -1,6 +1,7 @@
 //! Provides simplified APIs for interacting with the terminal and generating interfaces.
 
-use crate::{app, err};
+use carli::err;
+use carli::error::Result;
 use std::fmt;
 
 /// Prompts the user to select an item from a list.
@@ -17,7 +18,7 @@ use std::fmt;
 ///
 /// println!("You chose: {}", selected);
 /// ```
-pub fn select<'a, 'b, T>(prompt: &'a str, list: &'b [T]) -> app::Result<&'b T>
+pub fn select<'a, 'b, T>(prompt: &'a str, list: &'b [T]) -> Result<&'b T>
 where
     T: fmt::Display,
 {
