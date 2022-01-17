@@ -4,8 +4,8 @@
 //! once the application has exited. The location of the script will depend on the value of the
 //! `AWS_LOGIN_SCRIPT` environment variable.
 
-use crate::app::{self, ErrorContext};
-use crate::util::config;
+use crate::util::config::BIN_NAME;
+use carli::error::{Context, Error, Result};
 use std::io::Write;
 use std::{env, fs, path};
 
@@ -30,10 +30,10 @@ pub struct Environment {
 }
 
 impl super::Environment for Environment {
-    fn set_var(&mut self, name: &str, value: &str) -> crate::app::Result<()> {
+    fn set_var(&mut self, name: &str, value: &str) -> Result<()> {
         write!(self.file, "$Env:{} = '{}'", name, value)
-            .map_err(app::Error::from)
-            .with_context(|| "Could not set environment variable.".to_owned())
+            .map_err(Error::from)
+            .context(|| "Could not set environment variable.".to_owned())
     }
 }
 
@@ -73,20 +73,19 @@ impl Setup {
 impl super::Setup for Setup {
     fn generate_script(&self) -> String {
         include_str!("init.ps1")
-            .replace("{AWS_LOGIN}", &config::BIN_NAME)
+            .replace("{AWS_LOGIN}", &BIN_NAME)
             .replace("{AWS_LOGIN_SHELL}", super::SHELL_NAME)
     }
 
-    fn install(&self) -> app::Result<()> {
+    fn install(&self) -> Result<()> {
         let parent_dir = self.script.parent().unwrap();
 
         if !parent_dir.exists() {
             fs::create_dir_all(parent_dir)
                 .map_err(|error| {
-                    app::Error::new(error.raw_os_error().unwrap_or(1))
-                        .with_message(format!("{}", error))
+                    Error::new(error.raw_os_error().unwrap_or(1)).message(format!("{}", error))
                 })
-                .with_context(|| {
+                .context(|| {
                     "Could not create the directory containing the profile script.".to_owned()
                 })?;
         }
@@ -100,13 +99,13 @@ impl super::Setup for Setup {
         writeln!(
             handle,
             "Invoke-Expression (&{} shell init -s powershell | Out-String)",
-            *config::BIN_NAME
+            *BIN_NAME
         )?;
 
         Ok(())
     }
 
-    fn is_installed(&self) -> app::Result<bool> {
+    fn is_installed(&self) -> Result<bool> {
         if self.script.exists() {
             let contents = fs::read_to_string(&self.script)?;
 

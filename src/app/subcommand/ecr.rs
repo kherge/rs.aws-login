@@ -1,24 +1,24 @@
 //! A subcommand used to configure Docker to use the AWS Elastic Container Registry.
 
-use crate::app::ErrorContext;
-use crate::util::run;
-use crate::{app, err};
+use crate::app::Application;
+use crate::util::run::Run;
+use carli::prelude::cmd::*;
 
 /// The options for the subcommand.
 #[derive(clap::Parser)]
 pub struct Subcommand {}
 
-impl app::Execute for Subcommand {
-    fn execute(&self, context: &mut impl app::Context) -> app::Result<()> {
+impl Execute<Application> for Subcommand {
+    fn execute(&self, context: &Application) -> Result<()> {
         let registry_uri = generate_registry_uri(context)?;
-        let password = run::Run::new("aws")
+        let password = Run::new("aws")
             .with_aws_options(context)
             .arg("ecr")
             .arg("get-login-password")
             .output()
-            .with_context(|| "Could not generate ECR password.".to_owned())?;
+            .context(|| "Could not generate ECR password.".to_owned())?;
 
-        run::Run::new("docker")
+        Run::new("docker")
             .arg("login")
             .arg("--username")
             .arg("AWS")
@@ -26,15 +26,15 @@ impl app::Execute for Subcommand {
             .arg(&password)
             .arg(&registry_uri)
             .pass_through(context)
-            .with_context(|| "Docker could not be configured to use the registry.".to_owned())?;
+            .context(|| "Docker could not be configured to use the registry.".to_owned())?;
 
         Ok(())
     }
 }
 
 /// Generates the ECR registry URI using the active profile.
-fn generate_registry_uri(context: &impl app::Context) -> app::Result<String> {
-    let account_id = run::Run::new("aws")
+fn generate_registry_uri(context: &Application) -> Result<String> {
+    let account_id = Run::new("aws")
         .with_aws_options(context)
         .arg("sts")
         .arg("get-caller-identity")
@@ -44,19 +44,19 @@ fn generate_registry_uri(context: &impl app::Context) -> app::Result<String> {
         .arg("text")
         .output()
         .map(|output| output.trim().to_owned())
-        .with_context(|| "Could not get account ID from AWS CLI.".to_owned())?;
+        .context(|| "Could not get account ID from AWS CLI.".to_owned())?;
 
     let region = match context.region() {
         Some(region) => region.to_owned(),
         None => {
-            let output = run::Run::new("aws")
+            let output = Run::new("aws")
                 .with_aws_options(context)
                 .arg("configure")
                 .arg("get")
                 .arg("region")
                 .output()
                 .map(|output| output.trim().to_owned())
-                .with_context(|| "Could not get default region from AWS CLI.".to_owned())?;
+                .context(|| "Could not get default region from AWS CLI.".to_owned())?;
 
             if output.is_empty() {
                 err!(1, "The region could not be determined.");

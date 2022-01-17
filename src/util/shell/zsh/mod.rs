@@ -4,8 +4,8 @@
 //! once the application has exited. The location of the script will depend on the value of the
 //! `AWS_LOGIN_SCRIPT` environment variable.
 
-use crate::app::{self, ErrorContext};
-use crate::util::config;
+use crate::util::config::BIN_NAME;
+use carli::error::{Context, Error, Result};
 use std::io::Write;
 use std::{env, fs, path};
 
@@ -30,10 +30,10 @@ pub struct Environment {
 }
 
 impl super::Environment for Environment {
-    fn set_var(&mut self, name: &str, value: &str) -> crate::app::Result<()> {
+    fn set_var(&mut self, name: &str, value: &str) -> Result<()> {
         write!(self.file, "export {}=\"{}\"", name, value)
-            .map_err(app::Error::from)
-            .with_context(|| "Could not set environment variable.".to_owned())
+            .map_err(Error::from)
+            .context(|| "Could not set environment variable.".to_owned())
     }
 }
 
@@ -73,27 +73,23 @@ impl Setup {
 impl super::Setup for Setup {
     fn generate_script(&self) -> String {
         include_str!("init.sh")
-            .replace("{AWS_LOGIN}", &config::BIN_NAME)
+            .replace("{AWS_LOGIN}", &BIN_NAME)
             .replace("{AWS_LOGIN_SHELL}", super::SHELL_NAME)
     }
 
-    fn install(&self) -> app::Result<()> {
+    fn install(&self) -> Result<()> {
         let mut handle = fs::OpenOptions::new()
             .create(true)
             .append(true)
             .open(&self.script)?;
 
         writeln!(handle, "\n{}", INSTALLED_COMMENT)?;
-        writeln!(
-            handle,
-            "eval \"$({} shell init -s zsh)\"",
-            *config::BIN_NAME
-        )?;
+        writeln!(handle, "eval \"$({} shell init -s zsh)\"", *BIN_NAME)?;
 
         Ok(())
     }
 
-    fn is_installed(&self) -> app::Result<bool> {
+    fn is_installed(&self) -> Result<bool> {
         if self.script.exists() {
             let contents = fs::read_to_string(&self.script)?;
 

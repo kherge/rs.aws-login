@@ -1,8 +1,11 @@
 //! Provides a simplified and well integrated interface to [`Command`].
 
-use crate::app::{Context, Error, Result};
-use crate::err;
+use crate::app::Application;
+use carli::err;
+use carli::error::{Error, Result};
+use carli::io::Shared;
 use std::collections::HashMap;
+use std::io::Write;
 use std::process::Stdio;
 use std::sync::Mutex;
 use tokio::io::AsyncReadExt;
@@ -135,7 +138,7 @@ impl Run {
     ///     .arg("list-clusters")
     ///     .pass_through(&mut context)?;
     /// ```
-    pub fn pass_through(&mut self, context: &mut impl Context) -> Result<()> {
+    pub fn pass_through(&mut self, context: &Application) -> Result<()> {
         if !in_path(&self.program)? {
             err!(1, "The program, {}, could be found in PATH.", self.program);
         }
@@ -149,16 +152,15 @@ impl Run {
                 .spawn()?;
 
             let stderr_source = child.stderr.take();
-            let stderr_lock = context.error();
+            let mut stderr_target = context.error();
 
             let stdout_source = child.stdout.take();
-            let stdout_lock = context.output();
+            let mut stdout_target = context.output();
 
             let (result, _, _) = join!(
                 child.wait(),
                 async {
                     if let Some(mut stderr_source) = stderr_source {
-                        let mut stderr_target = stderr_lock.lock().unwrap();
                         let mut buffer = vec![0];
 
                         loop {
@@ -177,7 +179,6 @@ impl Run {
                 },
                 async {
                     if let Some(mut stdout_source) = stdout_source {
-                        let mut stdout_target = stdout_lock.lock().unwrap();
                         let mut buffer = vec![0];
 
                         loop {
@@ -225,7 +226,7 @@ impl Run {
     ///     .arg("get")
     ///     .arg("sso_start_url")
     /// ```
-    pub fn with_aws_options(&mut self, context: &impl Context) -> &mut Self {
+    pub fn with_aws_options(&mut self, context: &Application) -> &mut Self {
         if let Some(profile) = context.profile() {
             self.arg("--profile").arg(profile);
         }
@@ -244,8 +245,8 @@ fn in_path(program: &str) -> Result<bool> {
         Ok(cache) => cache,
         Err(error) => {
             return Err(Error::new(1)
-                .with_message(format!("{}", error))
-                .with_context("Could not acquire lock on CHECK_CACHE.".to_owned()))
+                .message(format!("{}", error))
+                .context("Could not acquire lock on CHECK_CACHE.".to_owned()))
         }
     };
 
@@ -263,7 +264,9 @@ fn in_path(program: &str) -> Result<bool> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::util::test::TestContext;
+
+    #[cfg(unix)]
+    use std::io::Seek;
 
     #[test]
     fn argument_building() {
@@ -279,9 +282,7 @@ mod test {
 
     #[test]
     fn aws_options_added() {
-        let context = TestContext::default()
-            .with_profile("profile".to_owned())
-            .with_region("region".to_owned());
+        let context = Application::test(Some("profile".to_owned()), Some("region".to_owned()));
 
         let args = Run::new("aws")
             .with_aws_options(&context)
@@ -338,21 +339,25 @@ mod test {
     #[cfg(unix)]
     #[test]
     fn pass_through_output() {
-        let mut context = TestContext::default();
+        let context = Application::test(None, None);
 
         let result = Run::new("printf")
             .arg("Hello, %s!")
             .arg("world")
-            .pass_through(&mut context);
+            .pass_through(&context);
+
+        let mut output = context.output();
+
+        output.rewind().unwrap();
 
         assert!(result.is_ok());
-        assert_eq!(context.output_as_string(), "Hello, world!");
+        assert_eq!(output.to_string_lossy(), "Hello, world!");
     }
 
     #[test]
     fn pass_through_output_not_in_path() {
-        let mut context = TestContext::default();
-        let result = Run::new("does-not-exist").pass_through(&mut context);
+        let context = Application::test(None, None);
+        let result = Run::new("does-not-exist").pass_through(&context);
 
         assert!(result.is_err());
         assert_eq!(

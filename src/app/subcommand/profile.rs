@@ -1,15 +1,18 @@
 //! A subcommand used to create and/or select an AWS CLI profile.
 
-use crate::app::{self, profile, ErrorContext};
-use crate::util::{run, shell, term};
-use crate::{err, errorln};
+use crate::app::{profile, Application};
+use crate::util::run::Run;
+use crate::util::shell::get_env;
+use crate::util::term::select;
+use carli::errorln;
+use carli::prelude::cmd::*;
 
 /// The options for the subcommand.
 #[derive(clap::Parser)]
 pub struct Subcommand {}
 
-impl app::Execute for Subcommand {
-    fn execute(&self, context: &mut impl app::Context) -> app::Result<()> {
+impl Execute<Application> for Subcommand {
+    fn execute(&self, context: &Application) -> Result<()> {
         let existing = get_existing_profiles(context)?;
         let profiles = profile::get_profiles()?;
         let profile = match context.profile() {
@@ -28,7 +31,7 @@ impl app::Execute for Subcommand {
                     err!(1, "There are no profiles available to choose from.");
                 }
 
-                term::select("Please select a profile to use:", &merged)?.to_string()
+                select("Please select a profile to use:", &merged)?.to_string()
             }
         };
 
@@ -40,7 +43,7 @@ impl app::Execute for Subcommand {
             }
         }
 
-        match shell::get_env() {
+        match get_env() {
             Some(mut env) => env.set_var("AWS_PROFILE", &profile)?,
             None => {
                 errorln!(context, "Unable to automatically switch AWS CLI profiles.")?;
@@ -53,9 +56,9 @@ impl app::Execute for Subcommand {
 }
 
 /// Creates the AWS CLI profile.
-fn create_profile(context: &mut impl app::Context, profile: &profile::Profile) -> app::Result<()> {
+fn create_profile(context: &Application, profile: &profile::Profile) -> Result<()> {
     for (key, value) in profile.settings() {
-        run::Run::new("aws")
+        Run::new("aws")
             .arg("--profile")
             .arg(profile.name())
             .arg("configure")
@@ -63,20 +66,20 @@ fn create_profile(context: &mut impl app::Context, profile: &profile::Profile) -
             .arg(key)
             .arg(value)
             .pass_through(context)
-            .with_context(|| format!("Could not set the profile setting, {}.", key))?;
+            .context(|| format!("Could not set the profile setting, {}.", key))?;
     }
 
     Ok(())
 }
 
 /// Returns a list of existing AWS CLI profiles.
-fn get_existing_profiles(context: &impl app::Context) -> app::Result<Vec<String>> {
-    let profiles = run::Run::new("aws")
+fn get_existing_profiles(context: &Application) -> Result<Vec<String>> {
+    let profiles = Run::new("aws")
         .with_aws_options(context)
         .arg("configure")
         .arg("list-profiles")
         .output()
-        .with_context(|| "Could not get a list of existing AWS CLI profiles.".to_owned())?
+        .context(|| "Could not get a list of existing AWS CLI profiles.".to_owned())?
         .split_whitespace()
         .map(|s| s.to_owned())
         .collect();

@@ -1,6 +1,8 @@
 //! A subcommand used for testing the application from the command line.
 
-use crate::{app, errorln, outputln};
+use crate::app::Application;
+use carli::prelude::cmd::*;
+use carli::{error, errorln, outputln};
 
 /// The options for the subcommand.
 #[derive(clap::Parser)]
@@ -10,14 +12,21 @@ pub struct Subcommand {
     error: bool,
 }
 
-impl app::Execute for Subcommand {
-    fn execute(&self, context: &mut impl app::Context) -> app::Result<()> {
+#[cfg(test)]
+impl Subcommand {
+    /// Creates a new instance.
+    pub fn new(error: bool) -> Self {
+        Self { error }
+    }
+}
+
+impl Execute<Application> for Subcommand {
+    fn execute(&self, context: &Application) -> Result<()> {
         if self.error {
             errorln!(context, "Producing an error response.\n")?;
 
-            let error = app::Error::new(123)
-                .with_message("The --error option was used.".to_owned())
-                .with_context("The subcommand could not complete successfully.".to_owned());
+            let error = error!(123, "The --error option was used.")
+                .context("The subcommand could not complete successfully.".to_owned());
 
             return Err(error);
         }
