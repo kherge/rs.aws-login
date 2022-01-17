@@ -264,6 +264,8 @@ fn in_path(program: &str) -> Result<bool> {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[cfg(unix)]
     use std::io::Seek;
 
     #[test]
