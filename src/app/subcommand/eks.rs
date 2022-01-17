@@ -3,7 +3,6 @@
 use crate::app::Application;
 use crate::util::run::Run;
 use crate::util::term::select;
-use carli::error::Context;
 use carli::prelude::cmd::*;
 
 /// The options for the subcommand.

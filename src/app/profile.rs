@@ -1,8 +1,8 @@
 //! Manages loading and parsing of profile templates.
 
 use crate::util::config;
-use carli::err;
 use carli::error::{Context, Error, Result};
+use carli::{err, error};
 use std::{collections, fmt, fs, io, path};
 
 lazy_static::lazy_static! {
@@ -197,7 +197,7 @@ pub fn set_templates(templates: &Templates) -> Result<()> {
     let writer = io::BufWriter::new(file);
 
     if let Err(error) = serde_json::to_writer_pretty(writer, templates) {
-        return Err(Error::new(1).message(format!("{}", error)).context(format!(
+        return Err(error!(1, "{}", error).context(format!(
             "Could not serialize the templates to the local file: {}",
             TEMPLATES_FILE.display()
         )));

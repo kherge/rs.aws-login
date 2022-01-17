@@ -2,7 +2,7 @@
 
 use crate::app::{profile, Application};
 use crate::util::term;
-use carli::error::{Context, Error};
+use carli::error;
 use carli::prelude::cmd::*;
 use std::{fmt, str};
 
@@ -69,14 +69,12 @@ impl Execute<Application> for Subcommand {
             Ok(response) => match response.text() {
                 Ok(text) => text,
                 Err(error) => {
-                    return Err(Error::new(1)
-                        .message(format!("{}", error))
+                    return Err(error!(1, "{}", error)
                         .context("The download response could not be read.".to_string()))
                 }
             },
             Err(error) => {
-                return Err(Error::new(1)
-                    .message(format!("{}", error))
+                return Err(error!(1, "{}", error)
                     .context("The templates could not be downloaded.".to_string()))
             }
         };

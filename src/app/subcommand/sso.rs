@@ -2,7 +2,6 @@
 
 use crate::app::Application;
 use crate::util::run;
-use carli::error::Context;
 use carli::prelude::cmd::*;
 
 /// The profile configuration settings required for SSO.

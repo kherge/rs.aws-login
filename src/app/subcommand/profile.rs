@@ -1,9 +1,8 @@
 //! A subcommand used to create and/or select an AWS CLI profile.
 
 use crate::app::{profile, Application};
-use crate::errorln;
 use crate::util::{run, shell, term};
-use carli::error::Context;
+use carli::errorln;
 use carli::prelude::cmd::*;
 
 /// The options for the subcommand.

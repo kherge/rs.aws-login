@@ -1,10 +1,10 @@
 //! A subcommand used to used to integrate the application with the user's shell.
 
 use crate::app::Application;
-use crate::outputln;
 use crate::util::shell;
-use carli::error::{Context, Error};
+use carli::outputln;
 use carli::prelude::cmd::*;
+use carli::{error, error::Error};
 use std::str;
 
 /// The actions supported by the subcommand.
@@ -56,7 +56,7 @@ pub struct Subcommand {
 impl Execute<Application> for Subcommand {
     fn execute(&self, context: &Application) -> Result<()> {
         let env = shell::get_setup(&self.shell, self.init.as_deref())
-            .ok_or_else(|| Error::new(1).message("The shell is not supported.".to_owned()))?;
+            .ok_or_else(|| error!(1, "The shell is not supported."))?;
 
         match &self.action {
             Action::Init => outputln!(context, "{}", env.generate_script())

@@ -1,9 +1,8 @@
 //! A subcommand used to generate a token for accessing RDS Proxy using IAM.
 
 use crate::app::Application;
-use crate::errorln;
 use crate::util::{run, term};
-use carli::error::Context;
+use carli::errorln;
 use carli::prelude::cmd::*;
 use std::fmt;
 

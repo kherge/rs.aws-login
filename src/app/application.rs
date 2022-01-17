@@ -1,7 +1,6 @@
 //! Provides the primary command line application interface.
 
 use crate::app::subcommand::Subcommand;
-use carli::io::Stream;
 use carli::prelude::app::*;
 use std::{cell, io};
 
