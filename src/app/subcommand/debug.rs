@@ -9,7 +9,15 @@ use carli::{error, errorln, outputln};
 pub struct Subcommand {
     /// Causes the command to produce an error.
     #[clap(short, long)]
-    pub(crate) error: bool,
+    error: bool,
+}
+
+#[cfg(test)]
+impl Subcommand {
+    /// Creates a new instance.
+    pub fn new(error: bool) -> Self {
+        Self { error }
+    }
 }
 
 impl Execute<Application> for Subcommand {

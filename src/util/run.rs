@@ -280,10 +280,7 @@ mod test {
 
     #[test]
     fn aws_options_added() {
-        let mut context = Application::test();
-
-        context.profile = Some("profile".to_owned());
-        context.region = Some("region".to_owned());
+        let context = Application::test(Some("profile".to_owned()), Some("region".to_owned()));
 
         let args = Run::new("aws")
             .with_aws_options(&context)
@@ -340,14 +337,14 @@ mod test {
     #[cfg(unix)]
     #[test]
     fn pass_through_output() {
-        let mut context = Application::test();
+        let mut context = Application::test(None, None);
 
         let result = Run::new("printf")
             .arg("Hello, %s!")
             .arg("world")
             .pass_through(&mut context);
 
-        let mut output = context.output.borrow_mut();
+        let mut output = context.output();
 
         output.rewind().unwrap();
 
@@ -357,7 +354,7 @@ mod test {
 
     #[test]
     fn pass_through_output_not_in_path() {
-        let mut context = Application::test();
+        let mut context = Application::test(None, None);
         let result = Run::new("does-not-exist").pass_through(&mut context);
 
         assert!(result.is_err());

@@ -1,7 +1,8 @@
 //! A subcommand used to generate a token for accessing RDS Proxy using IAM.
 
 use crate::app::Application;
-use crate::util::{run, term};
+use crate::util::run::Run;
+use crate::util::term::select;
 use carli::errorln;
 use carli::prelude::cmd::*;
 use std::fmt;
@@ -41,7 +42,7 @@ pub struct Subcommand {
 impl Execute<Application> for Subcommand {
     fn execute(&self, context: &Application) -> Result<()> {
         let proxies = get_proxies(context)?;
-        let proxy = term::select("Please select an RDS Proxy:", &proxies)?;
+        let proxy = select("Please select an RDS Proxy:", &proxies)?;
 
         if proxy.engine != "POSTGRESQL" && self.port.is_none() {
             err!(
@@ -58,7 +59,7 @@ impl Execute<Application> for Subcommand {
             )?;
         }
 
-        run::Run::new("aws")
+        Run::new("aws")
             .with_aws_options(context)
             .arg("rds")
             .arg("generate-db-auth-token")
@@ -76,7 +77,7 @@ impl Execute<Application> for Subcommand {
 
 /// Retrieves a list of the available RDS Proxies.
 fn get_proxies(context: &Application) -> Result<Vec<Proxy>> {
-    let pairs = run::Run::new("aws")
+    let pairs = Run::new("aws")
         .with_aws_options(context)
         .arg("rds")
         .arg("describe-db-proxies")

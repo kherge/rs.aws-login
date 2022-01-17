@@ -1,11 +1,11 @@
 //! A subcommand used to used to integrate the application with the user's shell.
 
 use crate::app::Application;
-use crate::util::shell;
+use crate::util::shell::get_setup;
 use carli::outputln;
 use carli::prelude::cmd::*;
 use carli::{error, error::Error};
-use std::str;
+use std::str::FromStr;
 
 /// The actions supported by the subcommand.
 enum Action {
@@ -16,7 +16,7 @@ enum Action {
     Install,
 }
 
-impl str::FromStr for Action {
+impl FromStr for Action {
     type Err = String;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -55,7 +55,7 @@ pub struct Subcommand {
 
 impl Execute<Application> for Subcommand {
     fn execute(&self, context: &Application) -> Result<()> {
-        let env = shell::get_setup(&self.shell, self.init.as_deref())
+        let env = get_setup(&self.shell, self.init.as_deref())
             .ok_or_else(|| error!(1, "The shell is not supported."))?;
 
         match &self.action {

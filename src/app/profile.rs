@@ -1,13 +1,13 @@
 //! Manages loading and parsing of profile templates.
 
-use crate::util::config;
+use crate::util::config::CONFIG_DIR;
 use carli::error::{Context, Error, Result};
 use carli::{err, error};
 use std::{collections, fmt, fs, io, path};
 
 lazy_static::lazy_static! {
     /// The path to the file containing the profile templates.
-    pub static ref TEMPLATES_FILE: path::PathBuf = config::CONFIG_DIR.join("templates.json");
+    pub static ref TEMPLATES_FILE: path::PathBuf = CONFIG_DIR.join("templates.json");
 }
 
 /// Manages an AWS CLI profile that is ready to be installed.

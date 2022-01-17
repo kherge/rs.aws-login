@@ -4,7 +4,7 @@
 //! once the application has exited. The location of the script will depend on the value of the
 //! `AWS_LOGIN_SCRIPT` environment variable.
 
-use crate::util::config;
+use crate::util::config::BIN_NAME;
 use carli::error::{Context, Error, Result};
 use std::io::Write;
 use std::{env, fs, path};
@@ -73,7 +73,7 @@ impl Setup {
 impl super::Setup for Setup {
     fn generate_script(&self) -> String {
         include_str!("init.sh")
-            .replace("{AWS_LOGIN}", &config::BIN_NAME)
+            .replace("{AWS_LOGIN}", &BIN_NAME)
             .replace("{AWS_LOGIN_SHELL}", super::SHELL_NAME)
     }
 
@@ -84,11 +84,7 @@ impl super::Setup for Setup {
             .open(&self.script)?;
 
         writeln!(handle, "\n{}", INSTALLED_COMMENT)?;
-        writeln!(
-            handle,
-            "eval \"$({} shell init -s zsh)\"",
-            *config::BIN_NAME
-        )?;
+        writeln!(handle, "eval \"$({} shell init -s zsh)\"", *BIN_NAME)?;
 
         Ok(())
     }

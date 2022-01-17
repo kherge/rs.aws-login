@@ -1,7 +1,7 @@
 //! A subcommand used to download profile templates from a URL.
 
 use crate::app::{profile, Application};
-use crate::util::term;
+use crate::util::term::select;
 use carli::error;
 use carli::prelude::cmd::*;
 use std::{fmt, str};
@@ -94,7 +94,7 @@ impl Execute<Application> for Subcommand {
                     let prompt = "What would you like to do with the existing templates?";
                     let choices = &[Resolve::Cancel, Resolve::Merge, Resolve::Replace];
 
-                    term::select(prompt, choices)?
+                    select(prompt, choices)?
                 }
             };
 
