@@ -9,7 +9,8 @@ mod rds;
 mod shell;
 mod sso;
 
-use crate::app;
+use crate::app::Application;
+use carli::prelude::cmd::*;
 
 /// The subcommands available to the user.
 #[derive(clap::Parser)]
@@ -75,8 +76,8 @@ pub enum Subcommand {
     Sso(sso::Subcommand),
 }
 
-impl app::Execute for Subcommand {
-    fn execute(&self, context: &mut impl app::Context) -> app::Result<()> {
+impl Execute<Application> for Subcommand {
+    fn execute(&self, context: &Application) -> Result<()> {
         match self {
             Self::Ecr(cmd) => cmd.execute(context),
             Self::Eks(cmd) => cmd.execute(context),
