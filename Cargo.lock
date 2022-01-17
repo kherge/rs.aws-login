@@ -71,9 +71,9 @@ checksum = "c4872d67bab6358e59559027aa3b9157c53d9358c51423c17554809a8858e0f8"
 
 [[package]]
 name = "carli"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cbd6f58854f226579b8850274e06b3f767eaea64dab3bf1652de0bffd7c8b9f7"
+checksum = "79c66abcde866efae363f34e060a6cb195f11c29a825fe7032d9a944ff8effe1"
 
 [[package]]
 name = "cc"
