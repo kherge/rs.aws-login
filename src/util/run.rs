@@ -337,12 +337,12 @@ mod test {
     #[cfg(unix)]
     #[test]
     fn pass_through_output() {
-        let mut context = Application::test(None, None);
+        let context = Application::test(None, None);
 
         let result = Run::new("printf")
             .arg("Hello, %s!")
             .arg("world")
-            .pass_through(&mut context);
+            .pass_through(&context);
 
         let mut output = context.output();
 
@@ -354,8 +354,8 @@ mod test {
 
     #[test]
     fn pass_through_output_not_in_path() {
-        let mut context = Application::test(None, None);
-        let result = Run::new("does-not-exist").pass_through(&mut context);
+        let context = Application::test(None, None);
+        let result = Run::new("does-not-exist").pass_through(&context);
 
         assert!(result.is_err());
         assert_eq!(
