@@ -151,24 +151,22 @@ impl Run {
                 .stdout(Stdio::piped())
                 .spawn()?;
 
-            let stderr_source = child.stderr.take();
-            let mut stderr_target = context.error();
-
-            let stdout_source = child.stdout.take();
-            let mut stdout_target = context.output();
+            let stderr = child.stderr.take();
+            let stdout = child.stdout.take();
 
             let (result, _, _) = join!(
                 child.wait(),
                 async {
-                    if let Some(mut stderr_source) = stderr_source {
+                    if let Some(mut source) = stderr {
                         let mut buffer = vec![0];
+                        let mut target = context.error();
 
                         loop {
-                            match stderr_source.read(&mut buffer).await {
+                            match source.read(&mut buffer).await {
                                 Ok(0) => break,
                                 Ok(_) => {
-                                    stderr_target.write_all(&buffer)?;
-                                    stderr_target.flush()?;
+                                    target.write_all(&buffer)?;
+                                    target.flush()?;
                                 }
                                 Err(error) => err!(1, "{}", error),
                             }
@@ -178,15 +176,16 @@ impl Run {
                     Ok(())
                 },
                 async {
-                    if let Some(mut stdout_source) = stdout_source {
+                    if let Some(mut source) = stdout {
                         let mut buffer = vec![0];
+                        let mut target = context.output();
 
                         loop {
-                            match stdout_source.read(&mut buffer).await {
+                            match source.read(&mut buffer).await {
                                 Ok(0) => break,
                                 Ok(_) => {
-                                    stdout_target.write_all(&buffer)?;
-                                    stdout_target.flush()?;
+                                    target.write_all(&buffer)?;
+                                    target.flush()?;
                                 }
                                 Err(error) => err!(1, "{}", error),
                             }
